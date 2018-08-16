@@ -103,19 +103,6 @@ end
 ## In what scenarios would it still be hotter after turning on the AC and closing the window?
 rand(timeofday, thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
 
-julia> rand(timeofday, thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
-10-element Array{Any,1}:
- :evening
- :evening
- :evening
- :morning
- :evening
- :evening
- :evening
- :evening
- :evening
- :evening
-
 ## What if we opened the window and turned the AC on (logical inconsistency w.r.t to original model)
 thermostat_imposs = replace(thermostat, is_ac_on => 1.0, is_window_open => 1.0)
 samples_imposs = rand(thermostat_imposs, 100000, alg = RejectionSample)

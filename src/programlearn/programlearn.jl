@@ -1,3 +1,4 @@
+module ProgramLearn
 using Omega
 using Distributions
 
@@ -49,4 +50,5 @@ function run()
 
   exprs = rand(randexpr, evalexpr == sin.(xs);
               ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
+end
 end
