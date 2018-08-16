@@ -3,6 +3,7 @@ using Plots
 using Distributions
 import UnicodePlots
 import PlotRecipes
+using ZenUtils
 
 "Sample from truncated distribution"
 function condequal(x, y, k; kwargs...)
@@ -23,7 +24,6 @@ function subplot(samples, α, plt = Plots.plot())
   PlotRecipes.marginalhist(x_, y_)
 end
 
-using ZenUtils
 
 function plotequal(samples, αs)
   # l = @layout [a; b; c; d]

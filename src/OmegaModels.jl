@@ -2,8 +2,7 @@ module OmegaModels
 
 using Omega
 
-models = ["mnistnobatching.jl"]
-t = include("mnistnobatching.jl")
-@show t
+include("mnist/mnist.jl")
+include("thermostat/thermostat.jl")
 
 end

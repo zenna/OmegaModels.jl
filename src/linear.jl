@@ -1,6 +1,5 @@
-# Bayesian Linear Regression
-# ==========================
-
+"Bayesian Linear Regression"
+module BayesLinear
 using Omega
 
 # Generate fake data
@@ -27,3 +26,4 @@ yprediction = linear(testxdata)
 
 # Inference
 samples = rand(θm, datacond == ydata, ΩT=Omega.SimpleΩ{Int, Float64}, n = 10000)
+end

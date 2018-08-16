@@ -1,3 +1,4 @@
+module RNN
 using Omega
 using Flux
 using UnicodePlots
@@ -134,6 +135,7 @@ function plot1(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu
 end
 
 nipssize() = ()
+end
 
 function setupplots()
   upscale = 1 #8x upscaling in resolution

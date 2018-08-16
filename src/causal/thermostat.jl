@@ -1,3 +1,4 @@
+module Thermostat
 # Causal Modeling of time of day, ac, window, and thermostat
 using Omega
 
@@ -129,3 +130,4 @@ mean(diffsamples_imposs)
 # ## Problematic
 # ## If I observe the thermostat to be high, does this make it more likely that it is midday?
 # mean(cond(timeofday == :afternoon, thermostat > 29.0)) - mean(timeofday == :afternoon)
+end
