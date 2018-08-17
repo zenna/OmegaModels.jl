@@ -1,4 +1,4 @@
-using Revise
+module Robustness
 using Omega
 
 "Population model"
@@ -260,4 +260,6 @@ params = infer_robust(2,true)
 
 for p in params
     println(test_robustness(wrap_param(p)))
+end
+
 end

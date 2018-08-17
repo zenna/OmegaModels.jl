@@ -1,5 +1,3 @@
-using Tensorboard
-using FileIO
 
 # To make this fast you could usue a generated function
 "Update Tensorboard"

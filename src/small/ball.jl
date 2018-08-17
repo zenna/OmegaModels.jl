@@ -5,11 +5,9 @@ using Test
 # colors of balls
 k = 5       
 n_obs = 50
-weights = Omega.dirichlet([1.0 for i = 1:k])
+weights = dirichlet([1.0 for i = 1:k])
 
-function y_(ω)
-  [Omega.categorical(ω[@id][i], weights(ω[@id][i])) for i = 1:n_obs]
-end
+y_(ω) = [categorical(ω[@id][i], weights(ω[@id][i])) for i = 1:n_obs]
 
 y = ciid(y_, Vector{Float64})
 

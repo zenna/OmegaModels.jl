@@ -24,7 +24,6 @@ function subplot(samples, α, plt = Plots.plot())
   PlotRecipes.marginalhist(x_, y_)
 end
 
-
 function plotequal(samples, αs)
   # l = @layout [a; b; c; d]
   subplots = subplot.(samples, αs)
@@ -33,7 +32,7 @@ function plotequal(samples, αs)
              fmt = :pdf,
              size = (1000, 200),
              title_location=:left)
-  savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "equal.pdf"))
+  savefig(plt, joinpath(ENV["DATADIR"], "Omega", "figures", "equal.pdf"))
   plt
 end
 

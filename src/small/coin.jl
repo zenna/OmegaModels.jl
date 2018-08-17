@@ -2,7 +2,7 @@ using Omega
 using Test
 
 nflips = 10
-weight = Omega.betarv(2.0, 2.0)
+weight = betarv(2.0, 2.0)
 flips = ciid(ω -> [bernoulli(ω, weight(ω)) for i = 1:nflips])
 
 obs = [1.0 for i = 1:nflips]

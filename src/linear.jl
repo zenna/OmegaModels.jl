@@ -2,28 +2,31 @@
 module BayesLinear
 using Omega
 
-# Generate fake data
-ndata = 10
-xdata = rand(10) * 10
-m_real = 2.5
-c_real = 1.7
-ydata = m_real .* xdata .+ c_real + randn(ndata)
+function regress()
+  # Generate fake data
+  ndata = 10
+  xdata = rand(10) * 10
+  m_real = 2.5
+  c_real = 1.7
+  ydata = m_real .* xdata .+ c_real + randn(ndata)
 
-# The model
-θm = normal(0.0, 2.0)
-θc = normal(0.0, 2.0)
+  # The model
+  θm = normal(0.0, 2.0)
+  θc = normal(0.0, 2.0)
 
-# Linear Regressor
-linear(x) = θm * x + θc
+  # Linear Regressor
+  linear(x) = θm * x + θc
 
-# Data condition
-datacond = randarray([(linear(xdata[i]) + normal(0.0, 2.0)) for i = 1:length(xdata)])
+  # Data condition
+  datacond = randarray([(linear(xdata[i]) + normal(0.0, 2.0)) for i = 1:length(xdata)])
 
-# Test data
-testxdata = rand(10) * 10
+  # Test data
+  testxdata = rand(10) * 10
 
-yprediction = linear(testxdata)
+  yprediction = linear(testxdata)
 
-# Inference
-samples = rand(θm, datacond == ydata, ΩT=Omega.SimpleΩ{Int, Float64}, n = 10000)
+  # Inference
+  samples = rand(θm, datacond == ydata, ΩT=Omega.SimpleΩ{Int, Float64}, n = 10000)
+end
+
 end
