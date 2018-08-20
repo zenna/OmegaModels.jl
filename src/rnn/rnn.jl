@@ -5,7 +5,6 @@ using UnicodePlots
 using DataFrames
 using CSV
 using Plots
-gr()
 
 Omega.defΩ() = SimpleΩ{Vector{Int}, Array}
 
@@ -135,7 +134,6 @@ function plot1(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu
 end
 
 nipssize() = ()
-end
 
 function setupplots()
   upscale = 1 #8x upscaling in resolution
@@ -166,4 +164,6 @@ end
 function plot_minimum(simsω, sims, obvglucose, norm_ = 2)
   @show p, id_ = mindistance(simsω, sims, obvglucose, norm_)
   plot_idx(id_, simsω, sims, obvglucose)
+end
+
 end

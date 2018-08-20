@@ -2,7 +2,6 @@ using Omega
 using Plots
 using Distributions
 import UnicodePlots
-import PlotRecipes
 using ZenUtils
 
 "Sample from truncated distribution"
@@ -21,7 +20,7 @@ end
 
 function subplot(samples, α, plt = Plots.plot())
   x_, y_ = ntranspose(samples)
-  PlotRecipes.marginalhist(x_, y_)
+  marginalhist(x_, y_)
 end
 
 function plotequal(samples, αs)

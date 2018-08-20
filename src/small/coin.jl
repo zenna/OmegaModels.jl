@@ -1,16 +1,18 @@
 using Omega
 using Test
 
-nflips = 10
-weight = betarv(2.0, 2.0)
-flips = ciid(ω -> [bernoulli(ω, weight(ω)) for i = 1:nflips])
+function testcoin()
+  nflips = 10
+  weight = betarv(2.0, 2.0)
+  flips = ciid(ω -> [bernoulli(ω, weight(ω)) for i = 1:nflips])
 
-obs = [1.0 for i = 1:nflips]
-ps = rand(weight, flips == obs)
+  obs = [1.0 for i = 1:nflips]
+  ps = rand(weight, flips == obs)
 
-@test mean(ps) > 0.5
+  @test mean(ps) > 0.5
 
-obs = [0.0 for i = 1:nflips]
-ps = rand(weight, flips == obs)
+  obs = [0.0 for i = 1:nflips]
+  ps = rand(weight, flips == obs)
 
-@test mean(ps) < 0.5
+  @test mean(ps) < 0.5
+end

@@ -1,13 +1,14 @@
+module Spelke
 using Omega
 using UnicodePlots
 using CSV
 using DataFrames
 using RunTools
 using ArgParse
+using PDMats
 
 include("distances.jl")
 include("evals.jl")
-
 
 lift(:(Base.getindex), 2)
 const Δxk = :x2
@@ -152,7 +153,7 @@ video_(ω, data::Vector, nsteps = 1000, f = identity) = video_(ω, initscene(ω,
 d(x1, x2) = x1 - x2
 K(x1, x2; l=0.1) = exp(-(d(x1, x2)^2)/(2l^2))
 t = 1:0.1:10
-using PDMats
+
 Σ = PDMat([K(x, y) for x in t, y in t] * 300)
 
 "Gaussian Process Random Variable"
@@ -218,7 +219,7 @@ end
 
 ## Visualization
 ## =============
-include("video.jl")
+# include("video.jl")
 
 "Four points (x, y) - corners of `box`"
 function corners(box)
@@ -276,11 +277,8 @@ function train(n = 10000)
   video = ciid(ω -> video_(ω, realvideo, nframes, render))
   latentvideo = ciid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-<<<<<<< HEAD
   samples = rand(video, video == realvideo, SSMH, n=n);
-=======
   samples = rand(latentvideo, video == realvideo, SSMH, n=1000);
->>>>>>> rcd
   evalposterior(samples, realvideo, false, true)
   samples
 end
@@ -294,4 +292,5 @@ function Δs(video)
     push!(Δs,  Δ(v1, v2))
   end
   Δs
+end
 end

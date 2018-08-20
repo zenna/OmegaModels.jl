@@ -4,11 +4,22 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
+PlotRecipes = "0e44f1d2-4516-5e7d-9182-378ae59e766c"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+RayTrace = "9441d024-97fe-11e8-2154-4d1b79854d30"
+RunTools = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
 Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Tensorboard = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 ZenUtils = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"
 
 [extras]

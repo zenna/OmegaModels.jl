@@ -20,7 +20,7 @@ function randargs(rng, sym, weight)
 end
 
 "Generate a random experiment"
-function randexpr_(rng::AbstractRNG, weight = 0.5)
+function randexpr_(rng, weight = 0.5)
   primitives = [:+, :-, :*, :/]
   head = rand(rng[@id], primitives)
   args = randargs(rng[@id], head, weight)
@@ -31,13 +31,9 @@ function wrap_(rng, weight = 0.5)
   expr = randexpr_(rng, weight)
   :(x -> $(expr))
 end 
-randexpr = ciid(randexpr_)
+randexpr = ciid(wrap_)
 evalexpr_(rng) = eval(randexpr(rng))
 evalexpr = ciid(evalexpr_)
-
-exprs = rand(randexpr, evalexpr == 5.0;
-             ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
-
 
 xs = collect(0.00001:1.0:10.0)
 fx(rng) = map(x -> Base.invokelatest(eval(wrap_(rng)), x), xs)
@@ -46,9 +42,7 @@ data = sin.(0.00001:1.0:10.0)
 function run()
   randexpr = ciid(randexpr_)
   evalexpr_(rng) = eval(randexpr(rng))
-  evalexpr = ciid(fx, T=Vector{Float64})
-
-  exprs = rand(randexpr, evalexpr == sin.(xs);
-              ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
+  evalexpr = ciid(fx)
+  exprs = rand(randexpr, evalexpr == sin.(xs))
 end
 end

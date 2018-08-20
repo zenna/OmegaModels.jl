@@ -1,5 +1,5 @@
+"Causal Modeling of time of day, ac, window, and thermostat"
 module Thermostat
-# Causal Modeling of time of day, ac, window, and thermostat
 using Omega
 
 timeofday = uniform([:morning, :afternoon, :evening])
@@ -27,7 +27,7 @@ function outside_temp_(rng)
   end
 end
 
-const outside_temp = ciid(outside_temp_, T=Float64)
+const outside_temp = ciid(outside_temp_)
 
 function inside_temp_(rng)
   if Bool(is_ac_on(rng))
@@ -37,7 +37,7 @@ function inside_temp_(rng)
   end
 end
 
-const inside_temp = ciid(inside_temp_, T=Float64)
+const inside_temp = ciid(inside_temp_)
 
 function thermostat_(rng)
   if Bool(is_window_open(rng))
@@ -47,7 +47,7 @@ function thermostat_(rng)
   end
 end
 
-const thermostat = ciid(thermostat_, T=Float64)
+const thermostat = ciid(thermostat_)
 
 ## Inference Queries
 ## =================
@@ -68,53 +68,54 @@ function plothist(samples; bins = 100, xlim = (0.0, 40.0))
                   label="")
 end
 
-# allvars = (timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat)
+const allvars = (timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat)
 
-# # Conditioning vs intervening
-# priorsamples = rand(outside_temp, 10000, alg = RejectionSample)
-# plothist(priorsamples)
+function main()
+  # Conditioning vs intervening
+  priorsamples = rand(outside_temp, 10000, alg = RejectionSample)
+  plothist(priorsamples)
 
-# ## Conditional Inference: You enter the room and the thermostat reads hot. what does this tell you about the variables?
-# priorsamplescond = rand(outside_temp, thermostat > 30, 10000, alg = RejectionSample)
-# plothist(priorsamplescond)
+  ## Conditional Inference: You enter the room and the thermostat reads hot. what does this tell you about the variables?
+  priorsamplescond = rand(outside_temp, thermostat > 30, 10000, alg = RejectionSample)
+  plothist(priorsamplescond)
 
-# outside_temp_do = replace(outside_temp, thermostat => 35.0)
-# priorsamplesdo = rand(outside_temp_do, 10000, alg = RejectionSample)
-# plothist(priorsamplesdo)
+  outside_temp_do = replace(outside_temp, thermostat => 35.0)
+  priorsamplesdo = rand(outside_temp_do, 10000, alg = RejectionSample)
+  plothist(priorsamplesdo)
 
-# # Prior thermostat reading
-# thermopriorsamples = rand(thermostat, 100000, alg = RejectionSample)
-# plothist(thermopriorsamples, bins = 100, xlim = (10, 40))
-# savefig("priorthermo.svg")
+  # Prior thermostat reading
+  thermopriorsamples = rand(thermostat, 100000, alg = RejectionSample)
+  plothist(thermopriorsamples, bins = 100, xlim = (10, 40))
+  savefig("priorthermo.svg")
 
-# ## If I were to close the window, and turn on the AC would that make it hotter or colder
-# thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)
-# dosamples = rand(thermostatnew, 100000, alg = RejectionSample)
-# plothist(dosamples, bins = 100, xlim = (10, 40))
-# savefig("dothermo.svg")
+  ## If I were to close the window, and turn on the AC would that make it hotter or colder
+  thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)
+  dosamples = rand(thermostatnew, 100000, alg = RejectionSample)
+  plothist(dosamples, bins = 100, xlim = (10, 40))
+  savefig("dothermo.svg")
 
+  allsamples = rand((allvars..., thermostatnew - thermostat), 100000, alg = RejectionSample)
+  diffsamples = rand(thermostatnew - thermostat, 100000, alg = RejectionSample)
+  plothist(diffsamples, bins = 100, xlim = :auto)
+  savefig("diffthermo.svg")
+  mean(diffsamples)
 
-# allsamples = rand((allvars..., thermostatnew - thermostat), 100000, alg = RejectionSample)
-# diffsamples = rand(thermostatnew - thermostat, 100000, alg = RejectionSample)
-# plothist(diffsamples, bins = 100, xlim = :auto)
-# savefig("diffthermo.svg")
-# mean(diffsamples)
+  ## In what scenarios would it still be hotter after turning on the AC and closing the window?
+  rand(timeofday, thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
 
-## In what scenarios would it still be hotter after turning on the AC and closing the window?
-rand(timeofday, thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
+  ## What if we opened the window and turned the AC on (logical inconsistency w.r.t to original model)
+  thermostat_imposs = replace(thermostat, is_ac_on => 1.0, is_window_open => 1.0)
+  samples_imposs = rand(thermostat_imposs, 100000, alg = RejectionSample)
+  plothist(samples_imposs, bins = 100, xlim = (10, 40))
+  savefig("dothermoimposs.svg")
 
-## What if we opened the window and turned the AC on (logical inconsistency w.r.t to original model)
-thermostat_imposs = replace(thermostat, is_ac_on => 1.0, is_window_open => 1.0)
-samples_imposs = rand(thermostat_imposs, 100000, alg = RejectionSample)
-plothist(samples_imposs, bins = 100, xlim = (10, 40))
-savefig("dothermoimposs.svg")
-
-diffsamples_imposs = rand(thermostat_imposs - thermostat, 10000, alg = RejectionSample)
-plothist(diffsamples_imposs, bins = 100, xlim = :auto)
-savefig("diffimposs.svg")
-mean(diffsamples_imposs)
-      
-# ## Problematic
-# ## If I observe the thermostat to be high, does this make it more likely that it is midday?
-# mean(cond(timeofday == :afternoon, thermostat > 29.0)) - mean(timeofday == :afternoon)
+  diffsamples_imposs = rand(thermostat_imposs - thermostat, 10000, alg = RejectionSample)
+  plothist(diffsamples_imposs, bins = 100, xlim = :auto)
+  savefig("diffimposs.svg")
+  mean(diffsamples_imposs)
+  # ## Problematic
+  # ## If I observe the thermostat to be high, does this make it more likely that it is midday?
+  # mean(cond(timeofday == :afternoon, thermostat > 29.0)) - mean(timeofday == :afternoon)
+end        
+  
 end

@@ -2,7 +2,7 @@ using Omega
 using Plots
 using Distributions
 import UnicodePlots
-import StatPlots
+# import StatPlots
 
 "Sample from truncated distribution"
 function truncate(x, lb, ub, k; kwargs...)

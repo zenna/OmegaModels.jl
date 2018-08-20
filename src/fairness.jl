@@ -1,3 +1,6 @@
+"Algorithmic Fairness"
+module Fairness
+
 using Omega
 
 "Population model"
@@ -51,11 +54,9 @@ function femaleModel(ω)
   return popModel_(ω,0.5)
 end
 
-# Zen: FIXME These are globals
-
-W = randarray([normal(0.0006, 1.0), normal(-5.7363, 1.0), normal(-0.0002, 1.0)])
-b = normal(1.0003, 1.0)
-δ = normal(-0.0003, 1.0)
+const W = randarray([normal(0.0006, 1.0), normal(-5.7363, 1.0), normal(-0.0002, 1.0)])
+const b = normal(1.0003, 1.0)
+const δ = normal(-0.0003, 1.0)
 
 "Classifier: does person have same classification?"
 function F(ω, sex, age, capital_gain, capital_loss)
@@ -76,9 +77,9 @@ isrich(ω) = F(ω, popModel(ω)[1], popModel(ω)[2], popModel(ω)[3], popModel(�
 gender(ω) = popModel(ω)[1]
 age(ω) = popModel(ω)[2]
 
-isrich_var = ciid(isrich, T = Bool)
-gender_var = ciid(gender, T = Float64)
-age_var = ciid(age, T = Float64)
+const isrich_var = ciid(isrich)
+const gender_var = ciid(gender)
+const age_var = ciid(age)
 
 # Three versions of fairness
 
@@ -129,8 +130,8 @@ end
 function main(faircriteria = groupfair, n = 1)
   fairness = faircriteria()
   samples = rand((W, b, δ), fairness, ; n = 10)
-
   println("Samples: $(samples)")
 end
 
-main(equalopportunity1)
+# main(equalopportunity1)
+end
