@@ -100,10 +100,10 @@ function Omega.d(x::Img, y::Img)
 end
 expanddims(x) = reshape(x, size(x)..., 1)
 
-function main()
-  scene = ciid(scene_)     # Random Variable of scenes
+function sampleposterior()
+  scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
-  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH)
+  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH, cb = default_cbs(100))
 end
 
 ## Diagnostics

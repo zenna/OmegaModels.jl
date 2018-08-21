@@ -11,6 +11,7 @@ using Flux
 using RunTools
 using DataFrames
 using Tensorboard
+import Statistics: mean
 
 include("net.jl")
 include("objects.jl")
