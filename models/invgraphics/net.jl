@@ -1,6 +1,3 @@
-using Flux
-using JLD2
-using FileIO
 # using ONNX
 path = joinpath(ENV["DATADIR"], "Omega", "squeezenetweights.jld2")
 const weights = Dict(k => Float64.(v) for (k, v) in load(path))
