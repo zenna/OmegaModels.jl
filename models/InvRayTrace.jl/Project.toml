@@ -1,16 +1,12 @@
-name = "OmegaModels"
-uuid = "5c58d492-a199-11e8-2252-e3ed96de436a"
+name = "InvRayTrace"
+uuid = "8a45d79e-a589-11e8-1025-51d29e337d7e"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+RunTools = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
+Tensorboard = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
 ZenUtils = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]

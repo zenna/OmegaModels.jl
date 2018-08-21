@@ -1,12 +1,7 @@
-## Prior Conditioning
-## ==================
+
 function same(xs)
   a = [x1 ≊ x2 for x1 in xs, x2 in xs if x1 !== x2]
-  # @show length(xs)
-  aba = all(a)
-  # @show aba
-  # println()
-  aba
+  all(a)
 end
 norma(x) = sqrt(sum(x .* x))
 
@@ -38,23 +33,7 @@ lift(:nointersect, 1)
 isequidistant(sc::Scene) = same(pairwisef(d, sc))
 lift(:isequidistant, 1)
 
-"Distinguished in colour"
-distinguishedcolor(sc::Sphere) = same(pairwisef(cold, sc))
-
-function main()
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-  # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
-  samples = rand(scene, isequidistant(scene), HMC, n=10000)
-end
-
-function main2()
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-  samples = rand(scene, nointersect(scene) & (img == img_obs), SSMH)
-end
-
-## MISC
+"Convert Scene to DataFrame"
 function scenetodf(scene::RayTrace.ListScene)
   alldf = DataFrame(x = Float64[], y = Float64[], z = Float64[], r = Float64[])
   for obj in scene.geoms

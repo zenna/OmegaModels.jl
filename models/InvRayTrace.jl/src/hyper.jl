@@ -1,6 +1,3 @@
-include("objects.jl")
-include("../common.jl")
-
 function runparams()
   φ = Params()
   φ[:train] = true
@@ -76,4 +73,3 @@ function testhyper()
 end
 
 main() = RunTools.control(infer, paramsamples())
-main()

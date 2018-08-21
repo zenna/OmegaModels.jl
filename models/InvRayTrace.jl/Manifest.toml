@@ -10,11 +10,22 @@ git-tree-sha1 = "036ce44a518b912c43df728bfae274f8d8de9059"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 version = "0.3.1"
 
+[[ArgParse]]
+deps = ["Compat", "Test", "TextWrap"]
+git-tree-sha1 = "295c309124b8385cca4d26b2669b17f9d44d8269"
+uuid = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+version = "0.6.0"
+
 [[Arpack]]
 deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
 git-tree-sha1 = "ffc099065b47835213386df346e4a8b807c320cd"
 uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
 version = "0.2.2"
+
+[[BSON]]
+git-tree-sha1 = "f0a841976d6b769874dca169c57421f7d67227e4"
+uuid = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
+version = "0.1.4"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -71,6 +82,12 @@ version = "0.2.0"
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
 git-tree-sha1 = "277d3807440d9793421354b6680911fc95d91a84"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
+version = "1.0.1"
+
+[[Conda]]
+deps = ["Compat", "JSON", "VersionParsing"]
+git-tree-sha1 = "a47f9a2c7b80095e6a935536795635522fe27f5d"
+uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 version = "1.0.1"
 
 [[DataFrames]]
@@ -134,10 +151,10 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.5.2"
 
 [[Flux]]
-deps = ["AbstractTrees", "Adapt", "Colors", "Dates", "DiffRules", "ForwardDiff", "GZip", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Reexport", "Requires", "SpecialFunctions", "Statistics", "StatsBase", "Test", "ZipFile"]
-git-tree-sha1 = "7f363d6f5c8e0c5daee4f44f02177309e2d1baae"
+deps = ["AbstractTrees", "Adapt", "Colors", "DiffRules", "ForwardDiff", "GZip", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Reexport", "Requires", "SpecialFunctions", "Statistics", "StatsBase", "Test", "ZipFile"]
+git-tree-sha1 = "7cb08b05904dcb869a2a3bd35d97ad6eb77ce20f"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-version = "0.6.1"
+version = "0.6.3"
 
 [[ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Pkg", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]
@@ -158,6 +175,18 @@ version = "0.5.0"
 [[InteractiveUtils]]
 deps = ["LinearAlgebra", "Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[IterTools]]
+deps = ["Pkg", "SparseArrays", "Test"]
+git-tree-sha1 = "ed0787e62dc46b8d8c7c3db54391d71e0da5fefd"
+uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+version = "1.0.0"
+
+[[JLD2]]
+deps = ["CodecZlib", "DataStructures", "FileIO", "LinearAlgebra", "Mmap", "Printf", "Random", "Test"]
+git-tree-sha1 = "6dad82183badddcaa078f5ad2e3c3634939afca1"
+uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+version = "0.1.0"
 
 [[JSON]]
 deps = ["Dates", "Distributed", "Mmap", "Pkg", "Sockets", "Test", "Unicode"]
@@ -223,7 +252,9 @@ version = "0.3.2"
 
 [[Omega]]
 deps = ["Compat", "Distributions", "Flux", "ForwardDiff", "PDMats", "ProgressMeter", "Random", "Spec", "Statistics", "UnicodePlots", "ZenUtils"]
-path = "/home/zenna/repos/Omega.jl"
+git-tree-sha1 = "5b14d6f113549cca32a126c0eac7b3e484bdb853"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Omega.jl"
 uuid = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
 version = "0.1.0"
 
@@ -250,6 +281,12 @@ deps = ["Printf", "Random", "Test"]
 git-tree-sha1 = "09e653f4b0a3c44628f0bdd0a0e58bc92e0264ef"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "0.6.0"
+
+[[PyCall]]
+deps = ["Compat", "Conda", "MacroTools", "VersionParsing"]
+git-tree-sha1 = "7a09c45434dff15556ed6b4496390d5c5932ac5d"
+uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+version = "1.18.0"
 
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra", "Test"]
@@ -282,6 +319,14 @@ deps = ["BinaryProvider", "Libdl", "Pkg", "Random", "Statistics", "Test"]
 git-tree-sha1 = "9a6c758cdf73036c3239b0afbea790def1dabff9"
 uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
 version = "0.5.0"
+
+[[RunTools]]
+deps = ["ArgParse", "BSON", "DataFrames", "FileIO", "IterTools", "JLD2", "Omega", "ProgressMeter", "Spec", "ZenUtils"]
+git-tree-sha1 = "d5cfa751c1346d1ebfe0ae7fc5c89929372eb1c0"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/RunTools.jl"
+uuid = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
+version = "0.1.0"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -346,9 +391,23 @@ version = "0.7.0"
 deps = ["Libdl", "LinearAlgebra", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
+[[Tensorboard]]
+deps = ["PyCall"]
+git-tree-sha1 = "a181cc56f01c2fa7add6ef02b7981857204d2972"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Tensorboard.jl"
+uuid = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
+version = "0.1.0"
+
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[[TextWrap]]
+deps = ["Compat", "Test"]
+git-tree-sha1 = "8355cc559e85469cd4dbe927c375f61d3750e002"
+uuid = "b718987f-49a8-5099-9789-dcd902bef87d"
+version = "0.3.0"
 
 [[TranscodingStreams]]
 deps = ["DelimitedFiles", "Pkg", "Random", "Test"]
@@ -375,11 +434,17 @@ git-tree-sha1 = "d26d1e85fb7e9d432a7bb0cd6e421e8a82928604"
 uuid = "b8865327-cd53-5732-bb35-84acbb429228"
 version = "0.3.1"
 
+[[VersionParsing]]
+deps = ["Compat"]
+git-tree-sha1 = "c9d5aa108588b978bd859554660c8a5c4f2f7669"
+uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
+version = "1.1.2"
+
 [[WeakRefStrings]]
 deps = ["Missings", "Random", "Test"]
-git-tree-sha1 = "1c28233e41ef8351c86ef42ddd50604b48238ed3"
+git-tree-sha1 = "d4631352d65840254d33ab703e2de3d9768cdb77"
 uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
-version = "0.5.1"
+version = "0.5.2"
 
 [[ZenUtils]]
 deps = ["Spec"]
@@ -390,7 +455,7 @@ uuid = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"
 version = "0.1.0"
 
 [[ZipFile]]
-deps = ["Compat"]
-git-tree-sha1 = "0d40c806c569c651fb4e08f104f33a09086b975f"
+deps = ["Printf", "Test"]
+git-tree-sha1 = "c191e56c849b1784cacbf7cd5e52cc672f1ae2db"
 uuid = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
-version = "0.6.0"
+version = "0.7.0"
