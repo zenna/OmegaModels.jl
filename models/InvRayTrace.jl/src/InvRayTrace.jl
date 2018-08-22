@@ -16,6 +16,7 @@ import Statistics: mean
 include("net.jl")
 include("objects.jl")
 include("prior.jl")
+include("diagnostics.jl")
 include("hyper.jl")
 
 end
