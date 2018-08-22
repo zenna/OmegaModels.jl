@@ -76,7 +76,7 @@ showscene(scene) = imshow(rgbimg(render(scene)))
 ## Observation
 ## ===========
 "Some example spheres which should create actual image"
-function observation_spheres()
+function obs_scene()
   scene = [FancySphere(Float64[0.0, -10004, -20], 10000.0, Float64[0.20, 0.20, 0.20], 0.0, 0.0, Float64[0.0, 0.0, 0.0]),
            FancySphere(Float64[0.0,      0, -20],     4.0, Float64[1.00, 0.32, 0.36], 1.0, 0.5, Float64[0.0, 0.0, 0.0]),
            FancySphere(Float64[5.0,     -1, -15],     2.0, Float64[0.90, 0.76, 0.46], 1.0, 0.0, Float64[0.0, 0.0, 0.0]),
@@ -87,7 +87,7 @@ function observation_spheres()
   RayTrace.ListScene(scene)
 end
 
-const img_obs = rendersquare(observation_spheres())
+const img_obs = rendersquare(obs_scene())
 
 ## Equality
 ## ========
@@ -103,7 +103,9 @@ expanddims(x) = reshape(x, size(x)..., 1)
 function sampleposterior()
   scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
-  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH, cb = default_cbs(100))
+  cbh = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
+  cb = idcb → cbh →  plotscalar(:hausdorff, "Hausdorff distance between scenes")
+  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH, cb = cb)
 end
 
 ## Diagnostics

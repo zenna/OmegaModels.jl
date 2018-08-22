@@ -1,7 +1,8 @@
 # Diagnostics
+using LinearAlgebra: norm
 
 Δ(a::Sphere, b::Sphere) = norm(a.center - b.center) + abs(a.radius - b.radius)
-Δ(a::Scene, b::Scene) = surjection(a.geoms, b.geoms)
+Δ(a::Scene, b::Scene) = hausdorff(a.geoms, b.geoms)
 
 "distance betwee two scenes"
 function hausdorff(s1, s2, Δ = Δ)
@@ -13,3 +14,7 @@ function plothist(truth, samples, plt = plot())
   distances = Δ.(truth, samples)
   histogram(distances)
 end
+
+addhausdorff(data, stage::Type{Outside}; groundtruth) =
+  (hausdorff = Δ(data.sample, groundtruth),)
+addhausdorff(data, stage; groundtruth) = nothing
