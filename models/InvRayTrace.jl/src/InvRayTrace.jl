@@ -12,6 +12,8 @@ using RunTools
 using DataFrames
 using Tensorboard
 import Statistics: mean
+using Lens
+using ZenUtils
 
 include("net.jl")
 include("objects.jl")

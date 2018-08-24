@@ -103,23 +103,18 @@ expanddims(x) = reshape(x, size(x)..., 1)
 function sampleposterior()
   scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
-  cbh = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
-  cb = idcb → cbh →  plotscalar(:hausdorff, "Hausdorff distance between scenes")
   samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH, cb = cb)
 end
 
-## Diagnostics
-## ===========
-Δ(a::Sphere, b::Sphere) = norm(a.center - b.center) + abs(a.radius - b.radius)
-Δ(a::Scene, b::Scene) = surjection(a.geoms, b.geoms)
+function sampleposterioradv()
+  scene = ciid(scene_)                # Random Variable of scenes
+  img = lift(rendersquare)(scene)     # Random Variable over images
+  cbh = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
+  cb = idcb → cbh →  plotscalar(:hausdorff, "Hausdorff distance between scenes")
 
-"distance betwee two scenes"
-function hausdorff(s1, s2, Δ = Δ)
-  Δm(x, S) = minimum([Δ(x, y) for y in S])
-  max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
-end
-
-function plothist(truth, samples, plt = plot())
-  distances = Δ.(truth, samples)
-  histogram(distances)
+  # View images
+  writer = Tensorboard.SummaryWriter("./")
+  tb_imgs(imgs...) = foreach(((i, img),) -> add_image!(writer, "l$i", img[:, :, 1]), enumerate(imgs))
+  lmap = (filters = tb_imgs,)
+  lenscall(lmap, rand, scene, img ==ₛ img_obs, 100; alg = SSMH, cb = cb)
 end
