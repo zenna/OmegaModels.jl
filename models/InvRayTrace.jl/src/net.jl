@@ -49,16 +49,16 @@ function squeezenet2(x_28)
     features = []
     id!(x) = (push!(features, x); x)
     c_19_ = c_19(x_28)
-    edge_29 = relu.(c_18(maxpool(relu.(c_19_), (3, 3), pad=(0, 0), stride=(2, 2))))
-    edge_30 = relu.(c_16(fcat(3, relu.(c_17(edge_29)), relu.(c_20(edge_29)))))
-    edge_31 = relu.(c_14(maxpool(fcat(3, relu.(c_15(edge_30)), relu.(c_21(edge_30))), (3, 3), pad=(0, 0), stride=(2, 2))))
-    edge_32 = relu.(c_12(fcat(3, relu.(c_13(edge_31)), relu.(c_22(edge_31)))))
-    edge_33 = relu.(c_10(maxpool(fcat(3, relu.(c_11(edge_32)), relu.(c_23(edge_32))), (3, 3), pad=(0, 0), stride=(2, 2))))
-    edge_34 = relu.(c_8(fcat(3, relu.(c_9(edge_33)), relu.(c_24(edge_33)))))
-    edge_35 = relu.(c_6(fcat(3, relu.(c_7(edge_34)), relu.(c_25(edge_34)))))
-    edge_36 = relu.(c_4(fcat(3, relu.(c_5(edge_35)), relu.(c_26(edge_35)))))
-    @show "hi"
-    lens(:filters, c_19_, edge_30, edge_34, edge_32, edge_31, x_28)
+    edge_29 = relu.((id! ∘ c_18)(maxpool(relu.(c_19_), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_30 = relu.((id! ∘ c_16)(fcat(3, relu.((id! ∘ c_17)(edge_29)), relu.((id! ∘ c_20)(edge_29)))))
+    edge_31 = relu.((id! ∘ c_14)(maxpool(fcat(3, relu.((id! ∘ c_15)(edge_30)), relu.((id! ∘ c_21)(edge_30))), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_32 = relu.((id! ∘ c_12)(fcat(3, relu.((id! ∘ c_13)(edge_31)), relu.((id! ∘ c_22)(edge_31)))))
+    edge_33 = relu.((id! ∘ c_10)(maxpool(fcat(3, relu.((id! ∘ c_11)(edge_32)), relu.((id! ∘ c_23)(edge_32))), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_34 = relu.((id! ∘ c_8)(fcat(3, relu.((id! ∘ c_9)(edge_33)), relu.((id! ∘ c_24)(edge_33)))))
+    edge_35 = relu.((id! ∘ c_6)(fcat(3, relu.((id! ∘ c_7)(edge_34)), relu.((id! ∘ c_25)(edge_34)))))
+    edge_36 = relu.((id! ∘ c_4)(fcat(3, relu.((id! ∘ c_5)(edge_35)), relu.((id! ∘ c_26)(edge_35)))))
+    lens(:filters, features...)
+    features
 end
 
 function squeezenet3(x_28)

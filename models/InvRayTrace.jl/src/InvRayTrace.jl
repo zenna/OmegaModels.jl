@@ -14,6 +14,7 @@ using Tensorboard
 import Statistics: mean
 using Lens
 using ZenUtils
+using Random
 
 include("net.jl")
 include("objects.jl")
