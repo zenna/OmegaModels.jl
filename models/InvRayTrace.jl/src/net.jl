@@ -48,7 +48,8 @@ end
 function squeezenet2(x_28)
     features = []
     id!(x) = (push!(features, x); x)
-    c_19_ = c_19(x_28)
+    id!(x_28)
+    c_19_ = id!(c_19(x_28))
     edge_29 = relu.((id! ∘ c_18)(maxpool(relu.(c_19_), (3, 3), pad=(0, 0), stride=(2, 2))))
     edge_30 = relu.((id! ∘ c_16)(fcat(3, relu.((id! ∘ c_17)(edge_29)), relu.((id! ∘ c_20)(edge_29)))))
     edge_31 = relu.((id! ∘ c_14)(maxpool(fcat(3, relu.((id! ∘ c_15)(edge_30)), relu.((id! ∘ c_21)(edge_30))), (3, 3), pad=(0, 0), stride=(2, 2))))

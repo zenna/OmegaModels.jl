@@ -18,3 +18,51 @@ end
 addhausdorff(data, stage::Type{Outside}; groundtruth) =
   (hausdorff = Δ(data.sample, groundtruth),)
 addhausdorff(data, stage; groundtruth) = nothing
+
+
+function cbs(writer, logdir, n, img)
+  # Render the observed img once!
+  add_image!(writer, "observed", cwh(img_obs.img), 1)
+
+  # Render img at each stage of markov chian
+  renderedimg(data, stage) = nothing
+  renderedimg(data, stage::Type{Outside}) = (img = img(data.ω).img,)
+
+  # Save the image to tensorboard
+  tbimg(data, stage) = nothing
+  tbimg(data, stage::Type{Outside}) = 
+    add_image!(writer, "renderedimg", cwh(data.img), data.i)
+
+  # Store the score to tensorboard
+  tbp(data, stage) = nothing
+  tbp(data, stage::Type{Outside}) = add_scalar!(writer, "p", data.p, data.i)
+
+  # Save the omegas
+  saveω(data, stage) = nothing
+  saveω(data, stage::Type{Outside}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
+
+  cbhausdorf = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
+  cb = idcb → (Omega.default_cbs_tpl(n)...,
+               tbp,
+               renderedimg → everyn(tbimg, 10),
+               everyn(saveω, div(n, 30)),
+               cbhausdorf → plotscalar(:hausdorff, "Hausdorff distance between scenes") )
+end
+
+function lenses(writer)
+  isobs = false
+  function tb_imgs(imgs...)
+    imgtype = isobs ? "obs" : "learn"
+    foreach(((i, img),) -> add_image!(writer, "$imgtype/l$i", img[:, :, 1]), enumerate(imgs))
+    isobs = !isobs
+  end
+
+  i = 1
+  function tbscores(scores)
+    i += 1
+    for (j, score) in enumerate(scores)
+      add_scalar!(writer, "l_$j", score, i)
+    end
+  end
+  lmap = (filters = tb_imgs, scores = tbscores)
+end
