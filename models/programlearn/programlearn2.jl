@@ -41,7 +41,10 @@ tl_eval(var::TLVar, context) =  context
 "Sample random expressions"
 function randexpr_(rng, weight=0.5)
   primitives = [TLPlus, TLMinus, TLTimes, TLDiv]
-  op = rand(rng[@id], primitives)()
+  k = primitives |> length
+  p = [1.0/k for i in primitives]
+  cat_ = categorical(rng[@id], p)
+  op = primitives[cat_]()
   left, right = randargs(rng[@id], weight)
   TLExpr(op, left, right)
 end
@@ -55,9 +58,11 @@ function randargs(rng, weight)
       TLVar()
     elseif p > weight / 2.0
       # randexpr_(rng[@id][i], weight * weight)
-      randexpr_(rng[@id][i], weight * weight)
+      randexpr_(rng[@id][i], weight )
     else
-      value = convert(Float64, rand(rng[@id][i], 1:20))
+      ps = [1/20.0 for i in 1:20] 
+      value = categorical(rng[@id][i], ps)
+      value = convert(Float64, value)
       TLVal(value)
     end
     push!(args, element)
@@ -77,6 +82,16 @@ function run(α = 100.0, n=10000)
 end
 
 
+function run2(α = 100.0, n=10000, noiseσ=0.1)
+  randexpr = ciid(randexpr_)
+  fx = ciid(fx_all, randexpr)
+  Omega.withkernel(Omega.kseα(α)) do
+    rand(randexpr, fx ==ₛ sin.(xs), n; 
+        alg=Omega.SSMHDrift, 
+        noiseσ = noiseσ)
+  end
+end
+
 errors(exprs) = map(exprs) do expr
   sum((x->x^2).(fx_all(expr) - sin.(xs)))
 end
@@ -85,4 +100,5 @@ function run_all()
   exprs = run(100)
   exprs |> errors |> lineplot
   exprs[2000:end] |> errors |> lineplot
+end
 end
