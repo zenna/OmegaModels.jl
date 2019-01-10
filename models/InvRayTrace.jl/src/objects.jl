@@ -7,6 +7,9 @@ import RayTrace: FancySphere, Vec3, Sphere, Scene
 using FileIO
 using DataFrames
 
+"Put image in channel width height form"
+cwh(img) = permutedims(img, (3, 1, 2))
+
 struct Img{T}
   img::T
 end
@@ -32,9 +35,9 @@ end
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
   spheres = [sphere_(ω[i]) for i = 1:nspheres(ω)]
-  base = FancySphere(Float64[0.0, -10004, -20], 10000.0, Float64[0.20, 0.20, 0.20], 0.0, 0.0, Float64[0.0, 0.0, 0.0])
+  # base = FancySphere(Float64[0.0, -10004, -20], 10000.0, Float64[0.20, 0.20, 0.20], 0.0, 0.0, Float64[0.0, 0.0, 0.0])
   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
-  push!(spheres, base)
+  # push!(spheres, base)
   push!(spheres, light)  
   scene = ListScene(spheres)
 end
@@ -57,6 +60,7 @@ function obs_scene()
 end
 
 const img_obs = rendersquare(obs_scene())
+# const img_obs = Img(permutedims(load("../data/globe.jld2")["globe"], (2, 3, 1)))
 
 ## Equality
 ## ========
@@ -70,22 +74,20 @@ function Omega.d(x::Img, y::Img)
 end
 expanddims(x) = reshape(x, size(x)..., 1)
 
-"Put image in channel width height form"
-cwh(img) = permutedims(img, (3, 1, 2))
-
 function sampleposterior()
   scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
-  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH, cb = cb)
+  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH)
 end
 
-function sampleposterioradv(n = 10000)
+function sampleposterioradv(n = 50000)
   scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
 
   logdir = Random.randstring()
   writer = Tensorboard.SummaryWriter(logdir)
   cb = cbs(writer, logdir, n, img)
+  samples = rand(scene, img ==ₛ img_obs, n; cb = cb, alg = SSMH)
   lmap = lenses(writer)
-  lenscall(lmap, rand, scene, img ==ₛ img_obs, n; alg = SSMH, cb = cb)
+  # lenscall(lmap, rand, scene, img ==ₛ img_obs, n; alg = SSMH, cb = cb)
 end

@@ -1,6 +1,6 @@
 
 function same(xs)
-  a = [x1 ≊ x2 for x1 in xs, x2 in xs if x1 !== x2]
+  a = [x1 ==ₛ x2 for x1 in xs, x2 in xs if x1 !== x2]
   all(a)
 end
 norma(x) = sqrt(sum(x .* x))
@@ -13,14 +13,14 @@ d(s1::Sphere, s2::Sphere) = norma(s1.center - s2.center)
 "Distance between surfance color"
 cold(s1::Sphere, s2::Sphere) = norma(s1.surface_color - s2.surface_color)
 
-intersect(s1::Sphere, s2::Sphere) = d(s1, s2) ⪅ (s1.radius + s2.radius)
+intersect(s1::Sphere, s2::Sphere) = d(s1, s2) <ₛ (s1.radius + s2.radius)
 function nointersect(s1::Sphere, s2::Sphere)
   d1 = d(s1, s2)
   d2 = (s1.radius + s2.radius)
   # d1 > d2
   withkernel(Omega.kseα(10000)) do
-    @show a = d1 ⪆ d2
-    Omega.SoftBool(Omega.logepsilon(a))
+    @show a = d1 >ₛ d2
+    Omega.SoftBool(Omega.logerr(a))
   end
 end
 

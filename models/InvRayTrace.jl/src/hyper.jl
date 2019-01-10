@@ -44,18 +44,18 @@ function infer(φ)
 
   # Render img at each stage of markov chian
   renderedimg(data, stage) = nothing
-  renderedimg(data, stage::Type{Outside}) = (img = img(data.ω).img,)
+  renderedimg(data, stage::Type{IterEnd}) = (img = img(data.ω).img,)
   tbimg(data, stage) = nothing
-  tbimg(data, stage::Type{Outside}) = 
+  tbimg(data, stage::Type{IterEnd}) = 
     add_image!(writer, "renderedimg", permutedims(data.img, (3, 1, 2)), data.i)
 
   # Store the score to tensorboard
   tbp(data, stage) = nothing
-  tbp(data, stage::Type{Outside}) = add_scalar!(writer, "p", data.p, data.i)
+  tbp(data, stage::Type{IterEnd}) = add_scalar!(writer, "p", data.p, data.i)
 
   # Save the omegas
   saveω(data, stage) = nothing
-  saveω(data, stage::Type{Outside}) = savejld(data.ω, joinpath(φ[:logdir], "omega"), data.i)
+  saveω(data, stage::Type{IterEnd}) = savejld(data.ω, joinpath(φ[:logdir], "omega"), data.i)
 
   cb = idcb → (Omega.default_cbs_tpl(n)...,
                tbp,

@@ -87,7 +87,7 @@ function run2(α = 100.0, n=10000, noiseσ=0.1)
   fx = ciid(fx_all, randexpr)
   Omega.withkernel(Omega.kseα(α)) do
     rand(randexpr, fx ==ₛ sin.(xs), n; 
-        alg=Omega.SSMHDrift, 
+        alg=Omega.SSMH, 
         noiseσ = noiseσ)
   end
 end

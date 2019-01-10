@@ -15,6 +15,7 @@ import Statistics: mean
 using Lens
 using ZenUtils
 using Random
+using Callbacks
 
 include("net.jl")
 include("objects.jl")

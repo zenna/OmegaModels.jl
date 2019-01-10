@@ -4,6 +4,7 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
 RunTools = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"

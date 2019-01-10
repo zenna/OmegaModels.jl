@@ -1,13 +1,14 @@
 using Omega
-using Plots
+# using Plots
 using Distributions
-import UnicodePlots
-# import StatPlots
+using Plots
+import StatPlots
 
-"Sample from truncated distribution"
-function truncate(x, lb, ub, k; kwargs...)
+
+"Sample from truncatedistd distribution"
+function truncatedist(x, lb, ub, k, n; kwargs...)
   withkernel(k) do
-    rand(x, (lb < x) & (x < ub); kwargs...)
+    rand(x, (lb < x) & (x < ub), n; kwargs...)
   end
 end
 
@@ -15,26 +16,27 @@ function sample()
   x = normal(0.0, 1.0)
   αs = [0.1, 1.0, 10.0, 100.0]
   kernels = Omega.kseα.(αs)
-  samples = truncate.(x, 0.0, 1.0, kernels; n = 100000)
+  samples = [truncatedist(x, 0.0, 1.0, k, 100000) for k in kernels]
 end
 
-function subplot(samples, α, plt = Plots.plot())
-  StatPlots.density!(samples, label = "a = $α",
+function subplot(samples, α, plt = plot())
+  density!(samples, label = "a = $α",
                     #  m=(0.001,:auto),
                      style = :auto,
                      w = 2.0)
 end
 
-function plot(samples)
-  plt = Plots.plot(title = "Truncated Normal through Conditioning")
+function plotdist(samples, save = false)
+  plt = plot(title = "Truncated Normal through Conditioning")
   αs = [0.1, 1.0, 10.0, 100.0]
-  subplot.(samples, αs, plt)
-  plt
-  savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "truncated.pdf"))
+  foreach((α, s) ->  subplot(s, α, plt), αs, samples)
+  save && savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "truncatedistd.pdf"))
   plt
 end
 
 function main()
-  plot(sample())
+  plotdist(sample())
 end
+
+main()
 

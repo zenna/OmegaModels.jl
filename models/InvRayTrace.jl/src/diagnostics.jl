@@ -15,7 +15,7 @@ function plothist(truth, samples, plt = plot())
   histogram(distances)
 end
 
-addhausdorff(data, stage::Type{Outside}; groundtruth) =
+addhausdorff(data, stage::Type{IterEnd}; groundtruth) =
   (hausdorff = Δ(data.sample, groundtruth),)
 addhausdorff(data, stage; groundtruth) = nothing
 
@@ -26,27 +26,28 @@ function cbs(writer, logdir, n, img)
 
   # Render img at each stage of markov chian
   renderedimg(data, stage) = nothing
-  renderedimg(data, stage::Type{Outside}) = (img = img(data.ω).img,)
+  renderedimg(data, stage::Type{IterEnd}) = (img = img(data.ω).img,)
 
   # Save the image to tensorboard
   tbimg(data, stage) = nothing
-  tbimg(data, stage::Type{Outside}) = 
+  tbimg(data, stage::Type{IterEnd}) = 
     add_image!(writer, "renderedimg", cwh(data.img), data.i)
 
   # Store the score to tensorboard
   tbp(data, stage) = nothing
-  tbp(data, stage::Type{Outside}) = add_scalar!(writer, "p", data.p, data.i)
+  tbp(data, stage::Type{IterEnd}) = add_scalar!(writer, "p", data.p, data.i)
 
   # Save the omegas
   saveω(data, stage) = nothing
-  saveω(data, stage::Type{Outside}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
+  saveω(data, stage::Type{IterEnd}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
 
-  cbhausdorf = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
+  # cbhausdorf = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
   cb = idcb → (Omega.default_cbs_tpl(n)...,
                tbp,
                renderedimg → everyn(tbimg, 10),
                everyn(saveω, div(n, 30)),
-               cbhausdorf → plotscalar(:hausdorff, "Hausdorff distance between scenes") )
+              #  cbhausdorf → plotscalar(:hausdorff, "Hausdorff distance between scenes")
+               )
 end
 
 function lenses(writer)

@@ -3,7 +3,7 @@
 "Update Tensorboard"
 function uptb(writer, name, field, verbose = true)
   updateaccuracy(data, stage) = nothing # Do nothing in other stages
-  function updateaccuracy(data, stage::Type{Outside})
+  function updateaccuracy(data, stage::Type{IterEnd})
     val = getfield(data, field)
     verbose && println("Saving $name to Tensoboard: $val")
     Tensorboard.add_scalar!(writer, name, val, data.i)
@@ -15,7 +15,7 @@ savejld(val, path, i) = save("$path$i.jld2", Dict("data" => val))
 "Save `data.field` to `path(data.i).jld2` as JLD2"
 function savedatajld2(path, field, verbose = true)
   savejld2(data, stage) = nothing # Do nothing in other stages
-  function savejld2(data, stage::Type{Outside})
+  function savejld2(data, stage::Type{IterEnd})
     fn = "$path$(data.i).jld2"
     val = getfield(data, field)
     verbose && println("Saving $field to JLD2 file: $fn")

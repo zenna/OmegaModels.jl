@@ -6,14 +6,14 @@ using DataFrames
 using TensorboardX
 
 function writescalar(writer, name, scalar = data -> data.p)
-  function writescalra(data, ::Type{Omega.Outside})
+  function writescalra(data, ::Type{Omega.IterEnd})
     add_scalar!(writer, name, scalar(data), data.i)
   end
 end
 
 function writescalar(writer, name, rv::Omega.RandVar)
-  function writescalra(data, ::Type{Omega.Outside})
-    add_scalar!(writer, name, Omega.logepsilon(rv(data.ω)), data.i)
+  function writescalra(data, ::Type{Omega.IterEnd})
+    add_scalar!(writer, name, Omega.logerr(rv(data.ω)), data.i)
   end
 end
 

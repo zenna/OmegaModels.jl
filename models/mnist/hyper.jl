@@ -67,7 +67,7 @@ const tX, tY = testdata()
 const net = ciid(net_; T = Flux.Chain)
 
 testacc(data, stage) = nothing
-testacc(data, stage::Type{Outside}) = (testacc = accuracy(net(data.ω), tX, tY),)
+testacc(data, stage::Type{IterEnd}) = (testacc = accuracy(net(data.ω), tX, tY),)
 
 # trainacc(data, stage) = (testacc = accuracy(net_(data.ω, tX, tY)))
 
