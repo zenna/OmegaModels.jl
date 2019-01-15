@@ -41,6 +41,7 @@ function scene_(ω)
   push!(spheres, light)  
   scene = ListScene(spheres)
 end
+const scene = ciid(scene_)                # Random Variable of scenes
 
 "Show a random image"
 showscene(scene) = imshow(rgbimg(render(scene)))
@@ -60,6 +61,7 @@ function obs_scene()
 end
 
 const img_obs = rendersquare(obs_scene())
+
 # const img_obs = Img(permutedims(load("../data/globe.jld2")["globe"], (2, 3, 1)))
 
 ## Equality
@@ -74,20 +76,18 @@ function Omega.d(x::Img, y::Img)
 end
 expanddims(x) = reshape(x, size(x)..., 1)
 
-function sampleposterior()
-  scene = ciid(scene_)                # Random Variable of scenes
+function sampleposterior(n = 1000)
   img = lift(rendersquare)(scene)     # Random Variable over images
-  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH)
+  samples = rand(scene, img ==ₛ img_obs, n; alg = SSMH)
 end
 
 function sampleposterioradv(n = 50000)
-  scene = ciid(scene_)                # Random Variable of scenes
   img = lift(rendersquare)(scene)     # Random Variable over images
-
   logdir = Random.randstring()
   writer = Tensorboard.SummaryWriter(logdir)
   cb = cbs(writer, logdir, n, img)
   samples = rand(scene, img ==ₛ img_obs, n; cb = cb, alg = SSMH)
   lmap = lenses(writer)
+  samples
   # lenscall(lmap, rand, scene, img ==ₛ img_obs, n; alg = SSMH, cb = cb)
 end
