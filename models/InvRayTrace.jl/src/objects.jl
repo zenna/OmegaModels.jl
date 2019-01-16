@@ -42,7 +42,7 @@ function scene_(ω)
   scene = ListScene(spheres)
 end
 const scene = ciid(scene_)                # Random Variable of scenes
-
+const img = lift(rendersquare)(scene)
 "Show a random image"
 showscene(scene) = imshow(rgbimg(render(scene)))
 
@@ -77,12 +77,12 @@ end
 expanddims(x) = reshape(x, size(x)..., 1)
 
 function sampleposterior(n = 1000)
-  img = lift(rendersquare)(scene)     # Random Variable over images
+  # img = lift(rendersquare)(scene)     # Random Variable over images
   samples = rand(scene, img ==ₛ img_obs, n; alg = SSMH)
 end
 
 function sampleposterioradv(n = 50000)
-  img = lift(rendersquare)(scene)     # Random Variable over images
+  # img = lift(rendersquare)(scene)     # Random Variable over images
   logdir = Random.randstring()
   writer = Tensorboard.SummaryWriter(logdir)
   cb = cbs(writer, logdir, n, img)
