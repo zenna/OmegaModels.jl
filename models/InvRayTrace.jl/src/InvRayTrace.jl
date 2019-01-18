@@ -13,7 +13,7 @@ using DataFrames
 using Tensorboard
 import Statistics: mean
 using Lens
-using ZenUtils
+# using ZenUtils
 using Random
 using Callbacks
 
