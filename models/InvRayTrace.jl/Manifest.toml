@@ -333,6 +333,14 @@ version = "0.1.0"
     TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
     UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
+[[OmegaModels]]
+deps = ["Callbacks", "DataFrames", "FileIO", "Omega"]
+git-tree-sha1 = "d20c939432ba936f3729af24f9b857a0ab09dea9"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/OmegaModels.jl"
+uuid = "5c58d492-a199-11e8-2252-e3ed96de436a"
+version = "0.1.0"
+
 [[OrderedCollections]]
 deps = ["Random", "Serialization", "Test"]
 git-tree-sha1 = "85619a3f3e17bb4761fe1b1fd47f0e979f964d5b"

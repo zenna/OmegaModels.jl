@@ -7,7 +7,7 @@ using Tensorboard
 using FileIO
 using Callbacks
 
-export infparams, infparams_, uptb, savejld, savejld2
+export infparams, infparams_, uptb, savejld, savejld2, savejldcb
 
 include("common.jl")
 end

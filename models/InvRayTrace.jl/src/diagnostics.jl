@@ -38,8 +38,8 @@ function cbs(writer, logdir, n, img)
   tbp(data, stage::Type{IterEnd}) = add_scalar!(writer, "p", data.p, data.i)
 
   # Save the omegas
-  saveω(data, stage) = nothing
-  saveω(data, stage::Type{IterEnd}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
+  # saveω(data, stage) = nothing
+  # saveω(data, stage::Type{IterEnd}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
 
   ωcap, ωs = capturevals(:ω, Ω)
 
@@ -47,7 +47,7 @@ function cbs(writer, logdir, n, img)
   cb = idcb → (Omega.default_cbs_tpl(n)...,
                tbp,
                renderedimg → everyn(tbimg, 10),
-               everyn(saveω, div(n, 30)),
+              #  everyn(saveω, div(n, 30)),
                ωcap → everyn(30) → savejldcb(joinpath(logdir, "omegas"), backup = true, verbose = true),
               #  cbhausdorf → plotscalar(:hausdorff, "Hausdorff distance between scenes")
                )

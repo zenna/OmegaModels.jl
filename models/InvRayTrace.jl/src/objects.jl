@@ -82,12 +82,11 @@ function sampleposterior(n = 1000)
   samples = rand(scene, img ==ₛ img_obs, n; alg = SSMH)
 end
 
-function sampleposterioradv(n = 50000)
-  # img = lift(rendersquare)(scene)     # Random Variable over images
+function sampleposterioradv(n = 50000; alg = SSMH, kwargs...)
   logdir = Random.randstring()
   writer = Tensorboard.SummaryWriter(logdir)
   cb = cbs(writer, logdir, n, img)
-  samples = rand(scene, img ==ₛ img_obs, n; cb = cb, alg = SSMH)
+  samples = rand(scene, img ==ₛ img_obs, n; cb = cb, alg = alg, kwargs...)
   lmap = lenses(writer)
   samples
   # lenscall(lmap, rand, scene, img ==ₛ img_obs, n; alg = SSMH, cb = cb)
