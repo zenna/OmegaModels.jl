@@ -313,7 +313,7 @@ version = "0.1.0"
 
 [[OmegaModels]]
 deps = ["Callbacks", "DataFrames", "FileIO", "Omega", "Tensorboard"]
-git-tree-sha1 = "10acd846124877b6c74711e8c6d894043bab7074"
+git-tree-sha1 = "7b33989c39a9fe490939d60d841cc7b74dcdf806"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/OmegaModels.jl"
 uuid = "5c58d492-a199-11e8-2252-e3ed96de436a"
