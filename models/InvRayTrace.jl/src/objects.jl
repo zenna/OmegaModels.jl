@@ -35,9 +35,9 @@ end
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
   spheres = [sphere_(ω[i]) for i = 1:nspheres(ω)]
-  # base = FancySphere(Float64[0.0, -10004, -20], 10000.0, Float64[0.20, 0.20, 0.20], 0.0, 0.0, Float64[0.0, 0.0, 0.0])
+  base = FancySphere(Float64[0.0, -10004, -20], 10000.0, Float64[0.20, 0.20, 0.20], 0.0, 0.0, Float64[0.0, 0.0, 0.0])
   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
-  # push!(spheres, base)
+  push!(spheres, base)
   push!(spheres, light)  
   scene = ListScene(spheres)
 end
