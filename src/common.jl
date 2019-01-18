@@ -10,7 +10,26 @@ function uptb(writer, name, field, verbose = true)
   end
 end
 
-savejld(val, path, i) = save("$path$i.jld2", Dict("data" => val))
+savejldi(val, path, i) = save("$path$i.jld2", Dict("data" => val))
+
+"Save file to `path.jld2`"
+function savejld(val, path; backup, verbose = false)
+  fname = "$path.jld2"
+  if backup && isfile(fname)
+    verbose && println("File $fname exists, backing up")
+    mv(fname, "$(path)_backup.jld2"; force = true)
+  end
+  verbose && println("Saving $fname")
+  save(fname, Dict("data" => val))
+end
+
+function savejldcb(path; backup, verbose = false)
+  innersavejld(data, stage) = nothing # Do nothing in other stages
+  function innersavejld(data, stage::Type{IterEnd})
+    savejld(data, path; backup = backup, verbose = verbose)
+  end
+end
+
 
 "Save `data.field` to `path(data.i).jld2` as JLD2"
 function savedatajld2(path, field, verbose = true)
