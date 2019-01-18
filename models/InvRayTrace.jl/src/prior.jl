@@ -17,16 +17,19 @@ intersect(s1::Sphere, s2::Sphere) = d(s1, s2) <ₛ (s1.radius + s2.radius)
 function nointersect(s1::Sphere, s2::Sphere)
   d1 = d(s1, s2)
   d2 = (s1.radius + s2.radius)
-  # d1 > d2
-  withkernel(Omega.kseα(10000)) do
-    @show a = d1 >ₛ d2
-    Omega.SoftBool(Omega.logerr(a))
+  a = d1 >ₛ d2
+end
+
+function sall(xs)
+  if isempty(xs)
+    return Omega.softtrue()
   end
+  all(xs)
 end
 
 "Do any objects in the scene intersect with any other"
 intersect(sc::Scene) = any(pairwisef(intersects, sc))
-nointersect(sc::Scene) = @show all(pairwisef(nointersect, sc))
+nointersect(sc::Scene) = sall(pairwisef(nointersect, sc))
 lift(:nointersect, 1)
 
 "Are all objects isequidistant?"
