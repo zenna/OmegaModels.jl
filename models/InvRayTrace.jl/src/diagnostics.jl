@@ -10,6 +10,12 @@ function hausdorff(s1, s2, Δ = Δ)
   max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
 end
 
+"Sum of minimum distances"
+function sumofmin(s1, s2, Δ = Δ)
+  Δm(x, S) = minimum([Δ(x, y) for y in S])
+  (sum([Δm(e, s2) for e in s1])+sum([Δm(e, s1) for e in s2]))/2
+end
+
 function plothist(truth, samples, plt = plot())
   distances = Δ.(truth, samples)
   histogram(distances)
