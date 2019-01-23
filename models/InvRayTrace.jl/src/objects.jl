@@ -82,13 +82,13 @@ function sampleposterior(n = 1000)
   samples = rand(scene, img ==ₛ img_obs, n; alg = SSMH)
 end
 
-function sampleposterioradv(n = 50000; noi = false, alg = SSMH, kwargs...)
+function sampleposterioradv(n = 50000; noi = false, alg = SSMH, gamma = 1.0, kwargs...)
   logdir = Random.randstring()
   writer = Tensorboard.SummaryWriter(logdir)
   cb = cbs(writer, logdir, n, img)
   noipred = Omega.lift(nointersect)(scene)
   obspred = img ==ₛ img_obs
-  pred = noi ? noipred & obspred : obspred
+  pred = noi ? (gamma * noipred) & obspred : obspred
   samples = rand(scene, pred, n; cb = cb, alg = alg, kwargs...)
   lmap = lenses(writer)
   samples

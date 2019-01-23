@@ -42,6 +42,7 @@ function cbs(writer, logdir, n, img)
   # saveω(data, stage::Type{IterEnd}) = savejld(data.ω, joinpath(logdir, "omega"), data.i)
 
   ωcap, ωs = capturevals(:ω, Ω)
+  pcap, ps = capturevals(:p, Ω)
 
   # cbhausdorf = (data, stage) -> addhausdorff(data, stage; groundtruth = obs_scene())
   cb = idcb → (Omega.default_cbs_tpl(n)...,
@@ -49,6 +50,7 @@ function cbs(writer, logdir, n, img)
                renderedimg → everyn(tbimg, 10),
               #  everyn(saveω, div(n, 30)),
                ωcap → everyn(30) → savejldcb(joinpath(logdir, "omegas"), backup = true, verbose = true),
+               pcap → everyn(30) → savejldcb(joinpath(logdir, "ps"), backup = true, verbose = true),
               #  cbhausdorf → plotscalar(:hausdorff, "Hausdorff distance between scenes")
                )
 end
