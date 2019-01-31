@@ -1,8 +1,7 @@
 # Causal Modeling of time of day, ac, window, and thermostat
-using Omega
+using Omega, Plots
 
-# Create a model
-# A uniform distribution over the time of day 
+# Create a model. Firstm a uniform distribution over the time of day 
 timeofday = uniform([:morning, :afternoon, :evening])
 
 # The window is either open or not (with equal probability)
@@ -48,22 +47,14 @@ end
 
 const thermostat = ciid(thermostat_)
 
-# Given the model, we can now define queries #
-using UnicodePlots
-using Plots
-fontx = Plots.font("Helvetica", 20)
-function plothist(samples; bins = 100, xlim = (0.0, 40.0))
-  upscale = 8 #8x upscaling in resolution
-  Plots.histogram(samples, bins = bins,
-                  # bar_edges = true,
-                  normalize=true,
-                  # aspect_ratio = :equal,
-                  size = (800, 600),
-                  xlim = xlim,
-                  # xticks = [0.0, 0.5, 1.0],
+function plothist(samples; bins = 100, kwargs...)
+  Plots.histogram(samples,
+                  bins = bins,
+                  normalize = true,
                   yticks = [],
-                  xtickfont=fontx,
-                  label="")
+                  xtickfont= Plots.font("Helvetica", 20),
+                  label = "",
+                  kwargs...)
 end
 
 function plotbar(scenarios)
@@ -73,16 +64,17 @@ function plotbar(scenarios)
             normalize=true)
 end
 
+# Given the model, we can now define queries #
 const allvars = (timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat)
 
 priorsamples = rand(outside_temp, 10000, alg = RejectionSample)
 plothist(priorsamples)
 
-# Conditional Inference: The thermostat reads hot. Shat does this tell you about outside temp?
-priorsamplescond = rand(outside_temp, thermostat > 30, 10000, alg = RejectionSample)
+# Conditional Inference: the thermostat reads hot. What does this tell you about outside temp?
+priorsamplescond = rand(outside_temp, thermostat > 30.0, 10000, alg = RejectionSample)
 plothist(priorsamplescond)
 
-# You intervene on thermostat to be hot,  What does this tell you about outside temp (answer: nothing!)
+# You intervene on thermostat to be hot,  What does this tell you about outside temp? (answer: nothing!)
 outside_temp_do = replace(outside_temp, thermostat => 35.0)
 priorsamplesdo = rand(outside_temp_do, 10000, alg = RejectionSample)
 plothist(priorsamplesdo)
