@@ -1,4 +1,4 @@
-# Causal Modeling of time of day, ac, window, and thermostat
+# Causal Modeling of time of day, ac, window, and thermometer
 using Omega, Plots
 
 # Create a model. Firstm a uniform distribution over the time of day 
@@ -37,7 +37,7 @@ const inside_temp = ciid(inside_temp_)
 
 # The room is a perfect insulator: when the window is closed its only the inside temperature that matters
 # Otherwise, its the mean of the outside and inside temperatures
-function thermostat_(rng)
+function thermometer_(rng)
   if is_window_open(rng)
     (outside_temp(rng[@id]) + inside_temp(rng[@id])) / 2.0
   else
@@ -45,7 +45,7 @@ function thermostat_(rng)
   end
 end
 
-const thermostat = ciid(thermostat_)
+const thermometer = ciid(thermometer_)
 
 function plothist(samples; bins = 100, kwargs...)
   Plots.histogram(samples,
@@ -65,39 +65,39 @@ function plotbar(scenarios)
 end
 
 # Given the model, we can now define queries #
-const allvars = (timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat)
+const allvars = (timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermometer)
 
 priorsamples = rand(outside_temp, 10000, alg = RejectionSample)
 plothist(priorsamples)
 
-# Conditional Inference: the thermostat reads hot. What does this tell you about outside temp?
-priorsamplescond = rand(outside_temp, thermostat > 30.0, 10000, alg = RejectionSample)
+# Conditional Inference: the thermometer reads hot. What does this tell you about outside temp?
+priorsamplescond = rand(outside_temp, thermometer > 30.0, 10000, alg = RejectionSample)
 plothist(priorsamplescond)
 
-# You intervene on thermostat to be hot,  What does this tell you about outside temp? (answer: nothing!)
-outside_temp_do = replace(outside_temp, thermostat => 35.0)
+# You intervene on thermometer to be hot,  What does this tell you about outside temp? (answer: nothing!)
+outside_temp_do = replace(outside_temp, thermometer => 35.0)
 priorsamplesdo = rand(outside_temp_do, 10000, alg = RejectionSample)
 plothist(priorsamplesdo)
 
-# Prior thermostat reading
-thermopriorsamples = rand(thermostat, 100000, alg = RejectionSample)
+# Prior thermometer reading
+thermopriorsamples = rand(thermometer, 100000, alg = RejectionSample)
 plothist(thermopriorsamples, bins = 100, xlim = (10, 40))
 
 # If I were to close the window and turn on the AC would that make it hotter or colder
-thermostatnew = replace(thermostat, is_ac_on => true, is_window_open => false)
-diffs = rand(thermostatnew - thermostat, 100000, alg = RejectionSample)
+thermometernew = replace(thermometer, is_ac_on => true, is_window_open => false)
+diffs = rand(thermometernew - thermometer, 100000, alg = RejectionSample)
 plothist(diffs, bins = 100)
 
 # In what scenarios would it still be hotter after turning on the AC and closing the window?
-scenarios = rand(timeofday, thermostatnew - thermostat > 0.0, 1000, alg = RejectionSample)
+scenarios = rand(timeofday, thermometernew - thermometer > 0.0, 1000, alg = RejectionSample)
 plotbar(scenarios)
 
 # What if we opened the window and turned the AC on (logical inconsistency w.r.t to original model)
-thermostat_imposs = replace(thermostat, is_ac_on => true, is_window_open => true)
-samples_imposs = rand(thermostat_imposs, 100000, alg = RejectionSample)
+thermometer_imposs = replace(thermometer, is_ac_on => true, is_window_open => true)
+samples_imposs = rand(thermometer_imposs, 100000, alg = RejectionSample)
 plothist(samples_imposs, bins = 100, xlim = (10, 40))
 # savefig("dothermoimposs.svg")
 
-diffsamples_imposs = rand(thermostat_imposs - thermostat, 10000, alg = RejectionSample)
+diffsamples_imposs = rand(thermometer_imposs - thermometer, 10000, alg = RejectionSample)
 plothist(diffsamples_imposs, bins = 100, xlim = :auto)
 mean(diffsamples_imposs)
