@@ -1,0 +1,10 @@
+name = "CanSee"
+uuid = "de2fcff4-2b0b-11e9-10a4-cb95ae96a049"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
+Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+RayTrace = "9441d024-97fe-11e8-2154-4d1b79854d30"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
