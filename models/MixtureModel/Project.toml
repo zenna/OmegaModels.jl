@@ -1,0 +1,6 @@
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+name = "MixtureModel"
+uuid = "62233cb2-aabf-11e8-326b-09e25757eb34"
+version = "0.1.0"
+
+[deps]
