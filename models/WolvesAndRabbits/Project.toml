@@ -1,6 +1,14 @@
-authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 name = "WolvesAndRabbits"
 uuid = "f2c9b6be-3cab-11e9-126f-9f8a39aec30f"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
+DiffEqFlux = "aae7a2af-3d4f-5e19-a356-7da93b79d9d0"
+DiffEqNoiseProcess = "77a26b50-5914-5dd7-bc55-306e6241c503"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
