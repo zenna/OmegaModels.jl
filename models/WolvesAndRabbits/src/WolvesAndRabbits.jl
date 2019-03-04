@@ -1,7 +1,7 @@
 module WolvesAndRabbits
 using Omega
 using Flux, DiffEqFlux, DifferentialEquations, Plots, DiffEqNoiseProcess
-plotly()
+PLOTSPATH = joinpath(@__DIR__, "..", "figures")
 
 # Plot results
 function plotwr(data; kwargs)
@@ -20,8 +20,11 @@ end
 # u0 = constant([1.0, 1.0])
 u0 = uniform(0, 2, (2,))
 
+# Time now
+t_now = 20.0
+
 # Iterate over 10 time steps
-tspan = constant((0.0, 20.0))
+tspan = constant((0.0, t_now))
 
 # Parameters of the simulation
 # p = constant([1.5,1.0,3.0,1.0])
@@ -30,21 +33,35 @@ p = uniform(0.5, 4.0, (4,))
 prob = ciid(ω -> ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)))
 sol = lift(solve)(prob)
 
-function sample()
+# Plot time series from prior
+function plot1()
   plot(rand(sol))
 end
 
-# Counter-factual model
-impulse = uniform(tspan[1], tspan[2]/2.0)
-condition = ciid(ω -> (u, t, integrator) -> t == impulse(ω))
-affect!(integrator) = integrator.u[2] /= 2.0 
-cb = DiscreteCallback(condition,affect!)
+# Counter-factual model #
+function gencf(; affect! = integrator -> integrator.u[2] /= 2.0,
+                 t_int = uniform(tspan[1], tspan[2]/2.0),
+                 tspan = tspan)
+  condition = ciid(ω -> (u, t, integrator) -> t == t_int(ω))
+  cb = DiscreteCallback(condition, affect!)
 
-# Solution to differential equation with intervention
-sol_int = ciid(ω -> solve(prob(ω),
-                        EM(),
-                        callback = DiscreteCallback(condition(ω), affect!),
-                        tstops = impulse(ω)))
+  # Solution to differential equation with intervention
+  sol_int = ciid(ω -> solve(ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)),
+                            EM(),
+                            callback = DiscreteCallback(condition(ω), affect!),
+                            tstops = t_int(ω)))
+end
+
+# impulse = uniform(tspan[1], tspan[2]/2.0)
+# condition = ciid(ω -> (u, t, integrator) -> t == impulse(ω))
+# affect!(integrator) = integrator.u[2] /= 2.0 
+# cb = DiscreteCallback(condition, affect!)
+
+# # Solution to differential equation with intervention
+# sol_int = ciid(ω -> solve(prob(ω),
+#                           EM(),
+#                           callback = DiscreteCallback(condition(ω), affect!),
+#                           tstops = impulse(ω)))
 
 # Plot a solution from an intervened model 
 function sampleint()
@@ -66,6 +83,25 @@ totalrabbits = ciid(totalrabbits_)
 # There are no rabbits if integrated mean value is 0
 norabbits = totalrabbits ==ₛ 0.0
 
+# No Rabbits
+function plot_cond()
+end
+
+# Effect Of Action #
+sol_inc_rab = gencf(; affect! = integrator -> integrator.u[1] += 2.0,
+                      t_int = constant(t_now),
+                      tspan = constant((0, t_now * 2)))
+
+function plot_effect_action(; n = 100, alg = SSMH, kwargs...)
+  samples = rand((norabbits, sol, sol_inc_rab), norabbits, n; alg = alg, kwargs...)
+  norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
+  display(plot(sol_[end], title = "Conditioned Model"))
+  display(plot(sol_inc_rab_[end], title = "Effect of Action"))
+end
+
+
+# Counter Factual #
+
 function samplecond1(;n = 100, alg = SSMH, kwargs...)
   samples = rand((impulse, norabbits, sol, sol_int), norabbits, n; alg = alg, kwargs...)
   impulse_, nor, sols, solcf = ntranspose(samples)
@@ -73,6 +109,16 @@ function samplecond1(;n = 100, alg = SSMH, kwargs...)
   # display(plot(logerr.(nor)))
   display(plot(sols[end]))
   display(plot(solcf[end]))
+end
+
+# Plot
+
+function makeplots(; save = true, fname = joinpath(PLOTSPATH, "allfigs.pdf"))
+  @show fname
+  @show @__DIR__
+  plts = [sample() for i = 1:6]
+  plt = plot(plts..., layout = (3,2))
+  save && savefig(plt, fname)
 end
 
 # THINKING
