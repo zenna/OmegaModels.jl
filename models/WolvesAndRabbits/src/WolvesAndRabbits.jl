@@ -1,6 +1,6 @@
 module WolvesAndRabbits
 using Omega
-using Flux, DiffEqFlux, DifferentialEquations, Plots, DiffEqNoiseProcess
+using Flux, DiffEqFlux, DifferentialEquations, Plots, DiffEqNoiseProcess, StatsBase
 PLOTSPATH = joinpath(@__DIR__, "..", "figures")
 
 # Plot results
@@ -18,7 +18,7 @@ end
 
 # Initial conditions
 # u0 = constant([1.0, 1.0])
-u0 = uniform(0, 2, (2,))
+u0 = uniform(0.5, 1.5, (2,))
 
 # Time now
 t_now = 20.0
@@ -28,7 +28,8 @@ tspan = constant((0.0, t_now))
 
 # Parameters of the simulation
 # p = constant([1.5,1.0,3.0,1.0])
-p = uniform(0.5, 4.0, (4,))
+# p = uniform(0.5, 4.0, (4,))
+p = ciid(ω -> [uniform(ω, 1.3, 1.7), uniform(ω, 0.7, 1.3), uniform(ω, 2.7, 3.3), uniform(ω, 0.7, 1.3)])
 
 prob = ciid(ω -> ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)))
 sol = lift(solve)(prob)
@@ -83,6 +84,8 @@ totalrabbits = ciid(totalrabbits_)
 # There are no rabbits if integrated mean value is 0
 norabbits = totalrabbits ==ₛ 0.0
 
+toomanyrabbits = totalrabbits ==ₛ 5.0
+
 # No Rabbits
 function plot_cond()
 end
@@ -93,22 +96,62 @@ sol_inc_rab = gencf(; affect! = integrator -> integrator.u[1] += 2.0,
                       tspan = constant((0, t_now * 2)))
 
 function plot_effect_action(; n = 100, alg = SSMH, kwargs...)
-  samples = rand((norabbits, sol, sol_inc_rab), norabbits, n; alg = alg, kwargs...)
+  samples = rand((toomanyrabbits, sol, sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
   norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
-  display(plot(sol_[end], title = "Conditioned Model"))
-  display(plot(sol_inc_rab_[end], title = "Effect of Action"))
+  p1 = plot(sol_[end], title = "Conditioned Model")
+  p2 = plot(sol_inc_rab_[end], title = "Effect of Action")
+  display(p1)
+  display(p2)
+  p1, p2
+end
+
+"Affect of increasing the number of predators"
+function plot_treatment_action(; n = 1000, alg = SSMH, kwargs...)
+  samples = rand((toomanyrabbits, replace(sol, tspan => constant((0, t_now * 2))), sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
+  norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
+  a = [sum(extractvals(a, 1, 200.0, 40.0)) for a in sol_[div(n, 2):n]]
+  b = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_inc_rab_[div(n, 2):n]]
+  histogram(b .- a, title = "Treatment effect, cull rabbits")
+  # norabbit_, sol_, sol_inc_rab_, a, b
 end
 
 
 # Counter Factual #
+t_int = uniform(tspan[1], tspan[2]/2.0)
+sol_inc_pred = gencf(; t_int = t_int,
+                       affect! = integrator -> integrator.u[2] += 2.0)
 
-function samplecond1(;n = 100, alg = SSMH, kwargs...)
-  samples = rand((impulse, norabbits, sol, sol_int), norabbits, n; alg = alg, kwargs...)
-  impulse_, nor, sols, solcf = ntranspose(samples)
-  println("intervention occured at time $(impulse_[end])")
+function plot_inc_pred(; n = 100, alg = SSMH, kwargs...)
+  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
+  t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
+  println("intervention occured at time $(t_int_[end])")
   # display(plot(logerr.(nor)))
-  display(plot(sols[end]))
-  display(plot(solcf[end]))
+  p1 = plot(sol_[end], title = "Conditioned Model")
+  p2 = plot(sol_inc_pred_[end], title = "Counterfactual: Culling Prey")
+  display(p1)
+  display(p2)
+  p1, p2
+end
+
+"Affect of increasing the number of predators"
+function plot_treatment(; n = 1000, alg = SSMH, kwargs...)
+  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
+  t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
+  sol_[end], sol_inc_pred_[end]
+  a = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_[500:1000]]
+  b = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_inc_pred_[500:1000]]
+  histogram(b .- a, title = "Treatment effect")
+end
+
+"Values of i Population between a and b"
+function extractvals(v, id, a, b, ::Type{T} = Float64) where T
+  res = Float64[]
+  for i = 1:length(v)
+    if a < v.t[i] < b
+      push!(res, v.u[i][id])
+    end
+  end
+  res
 end
 
 # Plot
@@ -116,8 +159,10 @@ end
 function makeplots(; save = true, fname = joinpath(PLOTSPATH, "allfigs.pdf"))
   @show fname
   @show @__DIR__
-  plts = [sample() for i = 1:6]
-  plt = plot(plts..., layout = (3,2))
+  plts_ea = plot_effect_action()
+  # plts = [sample() for i = 1:6]
+  plt = plot(plts_ea..., plot_inc_pred()..., plot_treatment_action(), plot_treatment(), layout = (3,2))
+  display(plt)
   save && savefig(plt, fname)
 end
 
