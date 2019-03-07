@@ -79,8 +79,8 @@ const img_obs = rendersquare(obs_scene())
 # Equality #
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
 function Omega.d(x::Img, y::Img)::Real
-  xfeatures = squeezenet2(expanddims(x.img))
-  yfeatures = squeezenet2(expanddims(y.img))
+  xfeatures = squeezenet2(expanddims(cube(x.img)))
+  yfeatures = squeezenet2(expanddims(cube(y.img)))
   eucl(xfeatures[1], yfeatures[1])
   # ds = map(eucl, xfeatures, yfeatures)
   # lens(:scores, ds)
