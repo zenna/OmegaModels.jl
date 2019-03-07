@@ -9,8 +9,8 @@ using LinearAlgebra: norm
 
 ## MeshCat
 ## =======
-function visualize(sphere::RayTrace.FancySphere, name, vis)
-  s = HyperSphere(Point3f0(sphere.center), Float32(sphere.radius))
+function visualize(sphere::RayTrace.MaterialGeom, name, vis)
+  s = HyperSphere(Point3f0(sphere.center), Float32(sphere.r))
   material = MeshPhongMaterial(color=@show RGBA([sphere.surface_color; 1.0]...))
   setobject!(vis[name], s, material)
 end
@@ -28,18 +28,18 @@ end
 ## =========
 "Convert FancySphere to GeometryTypes Sphere "
 gtype(sphere::RayTrace.Sphere) =
-  GLNormalUVMesh(GeometryTypes.HyperSphere(Point3f0(sphere.center), Float32(sphere.radius)))
+  GLNormalUVMesh(GeometryTypes.HyperSphere(Point3f0(sphere.center), Float32(sphere.r)))
   
 gtype(s::RayTrace.Scene) = Makie.merge([gtype(geom) for geom in s.geoms][1:end-2])
 
 ## Intersections
 ## =============
 "Is the point in the sphere"
-inobj(sphere::RayTrace.Sphere, x, y, z) = norm(sphere.center - [x, y, z]) < sphere.radius
+inobj(sphere::RayTrace.Sphere, x, y, z) = norm(sphere.center - [x, y, z]) < sphere.r
 inobj(geoms, x, y, z) = sum([inobj(geom, x, y, z) for geom in geoms])
 
-mins(sphere::RayTrace.Sphere) = min.(sphere.center .- sphere.radius, sphere.center .+ sphere.radius)
-maxs(sphere::RayTrace.Sphere) = max.(sphere.center .- sphere.radius, sphere.center .+ sphere.radius)
+mins(sphere::RayTrace.Sphere) = min.(sphere.center .- sphere.r, sphere.center .+ sphere.r)
+maxs(sphere::RayTrace.Sphere) = max.(sphere.center .- sphere.r, sphere.center .+ sphere.r)
 function mins(geoms)
   mins_ = [Inf, Inf, Inf]
   for geom in geoms

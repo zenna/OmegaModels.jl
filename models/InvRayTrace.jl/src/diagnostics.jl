@@ -28,7 +28,8 @@ addhausdorff(data, stage; groundtruth) = nothing
 
 function cbs(writer, logdir, n, img)
   # Render the observed img once!
-  add_image!(writer, "observed", cwh(img_obs.img), 1)
+  # @show cwh(img_obs.img))
+  add_image!(writer, "observed", cwh(cube(img_obs.img)), 1)
 
   # Render img at each stage of markov chian
   renderedimg(data, stage) = nothing
@@ -37,7 +38,7 @@ function cbs(writer, logdir, n, img)
   # Save the image to tensorboard
   tbimg(data, stage) = nothing
   tbimg(data, stage::Type{IterEnd}) = 
-    add_image!(writer, "renderedimg", cwh(data.img), data.i)
+    add_image!(writer, "renderedimg", cwh(cube(data.img)), data.i)
 
   # Store the score to tensorboard
   tbp(data, stage) = nothing

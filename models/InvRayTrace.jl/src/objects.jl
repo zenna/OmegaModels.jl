@@ -3,13 +3,20 @@ using Omega
 using RunTools
 using RayTrace
 import RayTrace
-import RayTrace: ListScene, rgbimg, rgb, msphere, Vec3, Sphere, Scene, render 
+import RayTrace: ListScene, rgbimg, rgb, msphere, Vec3, Sphere, Scene, render, MaterialGeom
 import GeometryTypes: Point, Vec3
 using FileIO
 using DataFrames
 
 "Put image in channel width height form"
-cwh(img) = permutedims(img, (3, 1, 2))
+cwh(img) = (@show typeof(img); permutedims(img, (3, 1, 2)))
+function cube(ii)
+  a = Array{Float64}(undef, (size(ii)...),3)
+  for i = 1:size(a, 1), j = 1:size(a, 2)
+    a[i,j,:] = ii[i,j]
+  end
+  a
+end
 
 struct Img{T}
   img::T
