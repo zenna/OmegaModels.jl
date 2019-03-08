@@ -6,10 +6,10 @@ using RayTrace: Ray, Scene, render, sceneintersect, msphere
 using Omega
 using Test
 using GeometryTypes
-using Omega: DualSoftBool, SoftBool
+using Omega.Soft: DualSoftBool, SoftBool
 
 function Omega.softeq(a::RayTrace.US, b::RayTrace.US)
-  (a.r ==ₛ b.r) & (a.center ==ₛ b.center)
+  res = (a.r ==ₛ b.r) & (a.center ==ₛ b.center)
 end
 
 "Does `r` hit `obj`  in `scene` first?"

@@ -16,8 +16,10 @@ The states are represented by 2-element static vectors of integers. Typically an
     size::Tuple{Int, Int}           = (10,10)
     rewards::Dict{GWPos, Float64}   = Dict(GWPos(4,3)=>-10.0, GWPos(4,6)=>-5.0, GWPos(9,3)=>10.0, GWPos(8,8)=>3.0)
     terminate_from::Set{GWPos}      = Set(keys(rewards))
-    tprob::Float64                  = 0.7
+    tprob::Float64                  = 0.70
     discount::Float64               = 0.95
+    defreward::Float64              = 0.0 # Default reward
+    initialstate::GWPos             = GWPos(1, 1)
 end
 
 # States
@@ -36,7 +38,9 @@ function POMDPs.stateindex(mdp::SimpleGridWorld, s::AbstractVector{Int})
   end
 end
 
-POMDPs.initialstate(mdp::SimpleGridWorld, rng::AbstractRNG) = GWPos(rand(rng, 1:mdp.size[1]), rand(rng, 1:mdp.size[2]))
+POMDPs.initialstate(mdp::SimpleGridWorld, rng::AbstractRNG) = mdp.initialstate
+# POMDPs.initialstate(mdp::SimpleGridWorld, rng::AbstractRNG) = GWPos(rand(rng, 1:mdp.size[1]), rand(rng, 1:mdp.size[2]))
+
 # Actions #
 
 POMDPs.actions(mdp::SimpleGridWorld) = (:up, :down, :left, :right)
@@ -88,7 +92,7 @@ end
 
 # Rewards #
 
-POMDPs.reward(mdp::SimpleGridWorld, s::AbstractVector{Int}) = get(mdp.rewards, s, 0.0)
+POMDPs.reward(mdp::SimpleGridWorld, s::AbstractVector{Int}) = @show get(mdp.rewards, s, mdp.defreward)
 POMDPs.reward(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symbol) = reward(mdp, s)
 
 # discount #

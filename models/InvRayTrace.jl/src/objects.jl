@@ -27,7 +27,7 @@ rendersquare(x) = Img(RayTrace.render(x, width = 224, height = 224))
 rgbimg(x::Img) = rgbimg(x.img)
 
 # Priors #
-const nspheres = poisson(3)
+const nspheres = poisson(3) + 1
 
 function sphere_(ω)
   # FancySphere([uniform(ω[@id], -6.0, 6.0), uniform(ω[@id], -1.0, 1.0), uniform(ω[@id], -30.0, -10.0)],
@@ -48,7 +48,7 @@ end
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
-  spheres = [sphere_(ω[i]) for i = 1:nspheres(ω)]
+  spheres = [sphere_(ω[i]) for i = 1:@show(nspheres(ω))]
   base = msphere(Point(0.0, -10004, -20), 10000.0, Vec3(0.20, 0.20, 0.20), 0.0, 0.0, Vec3(0.0, 0.0, 0.0))
   light = msphere(Point(0.0, 20.0, -30), 3.0, zeros(Vec3), 0.0, 0.0, Vec3(3.0, 3.0, 3.0))
   push!(spheres, base)
