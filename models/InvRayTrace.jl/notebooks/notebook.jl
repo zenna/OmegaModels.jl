@@ -3,7 +3,7 @@ using InvRayTrace: Img
 using Omega
 using RayTrace
 import RayTrace
-import RayTrace: ListScene, rgb, msphere, Vec3, Sphere, Scene, render
+import RayTrace: ListScene, rgb, msphere, Vec3, Sphere, Scene, render, nointersect
 import GeometryTypes: Point, Vec3
 
 # Render at 224 by 224 because
@@ -35,13 +35,15 @@ const scene = ciid(scene_)                # Random Variable of scenes
 const img = lift(rendersquare)(scene)     # Prior distribution over images
 
 "Show a scene"
-showscene(scene) = rgb.(render(scene; width = 500, height = 500)')
+showscene(scene) = rgb.(render(scene; width = 300, height = 300)')
 
 # Sample from Prior
 showscene(rand(scene))
 
-# Observation #
-"Some example spheres which should create actual image"
+# Another Sample
+showscene(rand(scene))
+
+"Example scene to create observed image"
 function obs_scene()
   scene = [msphere(Point(0.0, -10004, -20), 10000.0, Vec3(0.20, 0.20, 0.20), 0.0, 0.0, Vec3(0.0, 0.0, 0.0)),
            msphere(Point(0.0, 0.0, -20), 4.0, Vec3(1.0, 0.32, 0.36), 1.0, 0.5, zeros(Vec3)),
@@ -54,7 +56,7 @@ end
 
 const img_obs = rendersquare(obs_scene())
 
-# Show the obseration
+# Show the observation
 showscene(obs_scene())
 
 function sampleposterior(n = 1000)
@@ -64,12 +66,11 @@ end
 scenesamples = sampleposterior()
 showscene(scenesamples[end])
 
-# function sampleposterior_noi(n = 50000; noi = false, alg = SSMH, gamma = 1.0, kwargs...)
-#   logdir = Random.randstring()
-#   writer = Tensorboard.SummaryWriter(logdir)
-#   noipred = Omega.lift(nointersect)(scene)
-#   obspred = img ==ₛ img_obs
-#   pred = noi ? (gamma * noipred) & obspred : obspred
-#   samples = rand(scene, pred, n; cb = cb, alg = alg, kwargs...)
-#   samples
-# end
+function sampleposterior_noi(n = 50000; noi = false, alg = SSMH, gamma = 1.0, kwargs...)
+  logdir = Random.randstring()
+  noipred = Omega.lift(nointersect)(scene)
+  obspred = img ==ₛ img_obs
+  pred = noi ? (gamma * noipred) & obspred : obspred
+  samples = rand(scene, pred, n, alg = alg, kwargs...)
+  samples
+end
