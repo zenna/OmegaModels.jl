@@ -99,19 +99,21 @@ function plot_effect_action(; n = 100, alg = SSMH, kwargs...)
   samples = rand((toomanyrabbits, sol, sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
   norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
   p1 = plot(sol_[end], title = "Conditioned Model")
-  p2 = plot(sol_inc_rab_[end], title = "Effect of Action")
+  p2 = plot(sol_inc_rab_[end], title = "Action: Cull Prey")
   display(p1)
   display(p2)
   p1, p2
 end
 
 "Affect of increasing the number of predators"
-function plot_treatment_action(; n = 1000, alg = SSMH, kwargs...)
+function plot_treatment_action(; n = 10000, alg = SSMH, kwargs...)
   samples = rand((toomanyrabbits, replace(sol, tspan => constant((0, t_now * 2))), sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
   norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
-  a = [sum(extractvals(a, 1, 200.0, 40.0)) for a in sol_[div(n, 2):n]]
+  a = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_[div(n, 2):n]]
   b = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_inc_rab_[div(n, 2):n]]
-  histogram(b .- a, title = "Treatment effect, cull rabbits")
+  @show unique(b .- a)
+  @show b .- a
+  histogram(b .- a, title = "Prey Cull Treatment Effect", yaxis = false)
   # norabbit_, sol_, sol_inc_rab_, a, b
 end
 
@@ -120,27 +122,38 @@ end
 t_int = uniform(tspan[1], tspan[2]/2.0)
 sol_inc_pred = gencf(; t_int = t_int,
                        affect! = integrator -> integrator.u[2] += 2.0)
+using ZenUtils
+
+function maxpop(sol)
+  xs = sol[]
+end
 
 function plot_inc_pred(; n = 100, alg = SSMH, kwargs...)
   samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
   t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
   println("intervention occured at time $(t_int_[end])")
   # display(plot(logerr.(nor)))
-  p1 = plot(sol_[end], title = "Conditioned Model")
-  p2 = plot(sol_inc_pred_[end], title = "Counterfactual: Culling Prey")
+  # @grab sol_
+  # @assert false
+  x1, y1 = ntranspose(sol_[end].u)
+  x2, y2 = ntranspose(sol_inc_pred_[end].u)
+  m = max(maximum(x1), maximum(y1), maximum(x2), maximum(y2))
+
+  p1 = plot(sol_[end], title = "Conditioned Model", ylim = [0, m])
+  p2 = plot(sol_inc_pred_[end], title = "Counterfactual: Inc Predators", ylim = [0, m])
   display(p1)
   display(p2)
   p1, p2
 end
 
 "Affect of increasing the number of predators"
-function plot_treatment(; n = 1000, alg = SSMH, kwargs...)
+function plot_treatment(; n = 1000, alg = Replica, kwargs...)
   samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
   t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
   sol_[end], sol_inc_pred_[end]
   a = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_[500:1000]]
   b = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_inc_pred_[500:1000]]
-  histogram(b .- a, title = "Treatment effect")
+  histogram(b .- a, title = "Pred Inc Treatment effect", yaxis = false)
 end
 
 "Values of i Population between a and b"
@@ -161,7 +174,9 @@ function makeplots(; save = true, fname = joinpath(PLOTSPATH, "allfigs.pdf"))
   @show @__DIR__
   plts_ea = plot_effect_action()
   # plts = [sample() for i = 1:6]
-  plt = plot(plts_ea..., plot_inc_pred()..., plot_treatment_action(), plot_treatment(), layout = (3,2))
+  plt = plot(plts_ea..., plot_inc_pred()..., plot_treatment_action(), plot_treatment(),
+             layout = (3,2),
+             legend = false)
   display(plt)
   save && savefig(plt, fname)
 end

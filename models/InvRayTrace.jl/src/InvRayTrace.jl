@@ -4,23 +4,35 @@ module InvRayTrace
 
 using Omega
 using RayTrace
-using OmegaModels
 using JLD2
 using FileIO
 using Flux
-using RunTools
 using DataFrames
-using Tensorboard
 import Statistics: mean
-using Lens
-# using ZenUtils
 using Random
 using Callbacks
 
+import RayTrace: ListScene, rgbimg, rgb, msphere, Vec3, Sphere, Scene, render, MaterialGeom
+# import GeometryTypes: Point, Vec3
+using FileIO
+using DataFrames
+
+include("img.jl")
 include("net.jl")
-include("objects.jl")
 include("prior.jl")
-include("diagnostics.jl")
-include("hyper.jl")
+
+# export img, scene, img_obs
+
+# include("notebook.jl")
+
+# Optional
+# using OmegaModels
+# using Tensorboard
+# using RunTools
+# using Lens
+# using ZenUtils
+# include("diagnostics.jl")
+# include("hyper.jl")
+# include("samplediag.jl")
 
 end

@@ -1,5 +1,5 @@
 # using ONNX
-path = joinpath(ENV["DATADIR"], "Omega", "squeezenetweights.jld2")
+path = joinpath(dirname(pathof(InvRayTrace)), "..", "squeezenetweights.jld2")
 const weights = Dict(k => Float64.(v) for (k, v) in load(path))
 
 fcat(dims, args...) = cat(args...; dims = dims)
