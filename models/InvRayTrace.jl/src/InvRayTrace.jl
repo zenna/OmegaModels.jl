@@ -15,7 +15,6 @@ using Callbacks
 import RayTrace: ListScene, rgbimg, rgb, msphere, Vec3, Sphere, Scene, render, MaterialGeom
 # import GeometryTypes: Point, Vec3
 using FileIO
-using DataFrames
 
 include("img.jl")
 include("net.jl")
@@ -26,6 +25,7 @@ include("prior.jl")
 # include("notebook.jl")
 
 # Optional
+# using DataFrames
 # using OmegaModels
 # using Tensorboard
 # using RunTools

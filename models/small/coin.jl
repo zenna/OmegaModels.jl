@@ -1,18 +1,30 @@
 using Omega
-using Test
+using UnicodePlots
 
-function testcoin()
-  nflips = 10
-  weight = betarv(2.0, 2.0)
-  flips = ciid(ω -> [bernoulli(ω, weight(ω)) for i = 1:nflips])
+# Use a Beta distribution for a prior
+weight = β(2.0, 2.0)
 
-  obs = [1.0 for i = 1:nflips]
-  ps = rand(weight, flips == obs)
+# Draw 1000 samples from the prior
+beta_samples = rand(weight, 10000)
 
-  @test mean(ps) > 0.5
+# Visualize the prior of the weight
+UnicodePlots.histogram(beta_samples)
 
-  obs = [0.0 for i = 1:nflips]
-  ps = rand(weight, flips == obs)
+# Construct a distribution over coinflips
+nflips = 4
+coinflips = [bernoulli(weight, Bool) for i = 1:nflips]ᵣ
 
-  @test mean(ps) < 0.5
-end
+# `coinflips` is a `RandVar` and hence we can sample from it with `rand` 
+rand(coinflips)
+
+# First create some fake data
+observations = [true, true, true, false]
+
+# and then use `rand` to draw conditional samples:
+weight_samples = rand(weight, coinflips ==ᵣ observations, 10000; alg = RejectionSample)
+
+# Vizualise the conditional (aka, posterior) 
+UnicodePlots.histogram(weight_samples)
+
+# Observe that our belief about the weight has now changed.
+# We are more convinced the coin is biased towards heads (`true`).
