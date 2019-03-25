@@ -1,4 +1,6 @@
-# Causal Modeling of time of day, ac, window, and thermometer
+# "Causal Modeling of time of day, ac, window, and thermometer"
+# module Thermometer
+
 using Omega, Plots
 
 # Create a model. Firstm a uniform distribution over the time of day 
@@ -48,7 +50,7 @@ end
 const thermometer = ciid(thermometer_)
 
 function plothist(samples; bins = 100, kwargs...)
-  Plots.histogram(samples,
+  Plots.histogram(samples;
                   bins = bins,
                   normalize = true,
                   yticks = [],
@@ -101,3 +103,5 @@ plothist(samples_imposs, bins = 100, xlim = (10, 40))
 diffsamples_imposs = rand(thermometer_imposs - thermometer, 10000, alg = RejectionSample)
 plothist(diffsamples_imposs, bins = 100, xlim = :auto)
 mean(diffsamples_imposs)
+
+# end

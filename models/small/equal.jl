@@ -35,7 +35,7 @@ function plotequal(samples, αs)
   plt
 end
 
-function main(;αs = [0.1, 1.0, 10.0, 100.0, 1000.0], samples = sample(αs))
+function main(; αs = [0.1, 1.0, 10.0, 100.0, 1000.0], samples = sample(αs))
   plotequal(samples, αs)
 end
 
