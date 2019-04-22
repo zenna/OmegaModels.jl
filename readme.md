@@ -13,3 +13,5 @@
 
 [codecov-img]: https://codecov.io/github/zenna/OmegaModels.jl/coverage.svg?branch=master
 [codecov-url]: http://codecov.io/github/zenna/OmegaModels.jl?branch=master
+
+A collection of models for use with Omega

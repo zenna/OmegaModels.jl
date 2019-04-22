@@ -1,51 +1,58 @@
 module WolvesAndRabbits
 using Omega
-using Flux, DiffEqFlux, DifferentialEquations, Plots, DiffEqNoiseProcess, StatsBase
-PLOTSPATH = joinpath(@__DIR__, "..", "figures")
+using Flux, DiffEqFlux, DifferentialEquations, Plots, DiffEqNoiseProcess
 
-# Plot results
-function plotwr(data; kwargs)
-  plot(data)
-end
+# In this experiment we use the Lotka-Volterra model for counterfactual reasoning about population dynamics.
+# The Lotka-Volterra model is a pair of differential equations which represent interacting populations of predators (e.g. wolves) and prey (e.g. rabbits):
 
-# Lotka Volterra represents dynamics of wolves and Rabbit Populations over time
+# ```math
+# {\frac {dx}{dt}} =\alpha x-\beta xy \;\;\;\;\;\;
+# {\frac {dy}{dt}} =\delta xy-\gamma y
+# ```
+
+# where $x(t)$ and $y(t)$ represents the prey and predator  respectively.
+# Parameters $\alpha, \beta, \delta$ and $\gamma$ are positive constants which represent growth rates.
+
+# Suppose that after observing for 10$ days until `t_now = 20`, we discover that  the rabbit population is unsustainably high.
+# We want to ask counterfactual questions: how would an intervention now affect the future; had we intervened in this past, could we have avoided this situation? 
+
+# ### The prior: differential equations model for population dynamics
+
+# lotka_volterra represents dynamics of wolves and rabbit populations over time
 function lotka_volterra(du, u, p, t)
-  x, y = u
+  x, y = u    # x, y = u[1], u]2] = prey. predator
   α, β, δ, γ = p
   du[1] = dx = α*x - β*x*y
   du[2] = dy = -δ*y + γ*x*y
 end
 
-# Initial conditions
-# u0 = constant([1.0, 1.0])
+# Initial conditions of dynamical system are uniformly distributed
 u0 = uniform(0.5, 1.5, (2,))
 
-# Time now
+# At `t_now` we observe the populations
 t_now = 20.0
 
-# Iterate over 10 time steps
+# The time span of the ODE integration is from 0 to `t_now`.  We make it a constant random variable to be easily intervenable
 tspan = constant((0.0, t_now))
 
-# Parameters of the simulation
-# p = constant([1.5,1.0,3.0,1.0])
-# p = uniform(0.5, 4.0, (4,))
+# Prior over Lotka-Volterra parameters
 p = ciid(ω -> [uniform(ω, 1.3, 1.7), uniform(ω, 0.7, 1.3), uniform(ω, 2.7, 3.3), uniform(ω, 0.7, 1.3)])
 
+# A distribution over simulation problems and solutions
 prob = ciid(ω -> ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)))
 sol = lift(solve)(prob)
 
-# Plot time series from prior
-function plot1()
-  plot(rand(sol))
-end
+# Plot four samples of time series from the prior
+plotfig1() = plot(rand(sol))
+#nb plot(plotfig1(), plotfig1(), plotfig1(), plotfig1(), layout = (2, 2))
 
-# Counter-factual model #
+# ### Counter-factual model (a random random variable over `solve(ODEProblem...))`
+"Generate a counterfatual model"
 function gencf(; affect! = integrator -> integrator.u[2] /= 2.0,
                  t_int = uniform(tspan[1], tspan[2]/2.0),
                  tspan = tspan)
   condition = ciid(ω -> (u, t, integrator) -> t == t_int(ω))
   cb = DiscreteCallback(condition, affect!)
-
   # Solution to differential equation with intervention
   sol_int = ciid(ω -> solve(ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)),
                             EM(),
@@ -53,25 +60,9 @@ function gencf(; affect! = integrator -> integrator.u[2] /= 2.0,
                             tstops = t_int(ω)))
 end
 
-# impulse = uniform(tspan[1], tspan[2]/2.0)
-# condition = ciid(ω -> (u, t, integrator) -> t == impulse(ω))
-# affect!(integrator) = integrator.u[2] /= 2.0 
-# cb = DiscreteCallback(condition, affect!)
+# ### Effect of (observed too many rabbits)
 
-# # Solution to differential equation with intervention
-# sol_int = ciid(ω -> solve(prob(ω),
-#                           EM(),
-#                           callback = DiscreteCallback(condition(ω), affect!),
-#                           tstops = impulse(ω)))
-
-# Plot a solution from an intervened model 
-function sampleint()
-  t, sol_int_ = rand((impulse, sol_int))
-  println("intervention occured at time $t")
-  plot(sol_int_)
-end              
-
-# Suppose we observe that there are no rabbits
+"Total number of rabbits"
 function totalrabbits_(ω; ndays = 10)
   sol_ = sol(ω)
   n = length(sol_)
@@ -79,84 +70,32 @@ function totalrabbits_(ω; ndays = 10)
   sum(rabbits)
 end
 
+# `totalrabbits` is a random variable whose values depends on the prior of the ODE 
 totalrabbits = ciid(totalrabbits_)
 
-# There are no rabbits if integrated mean value is 0
-norabbits = totalrabbits ==ₛ 0.0
-
+# There are too many rabbits if sum is 5 for previous ndays = 10
 toomanyrabbits = totalrabbits ==ₛ 5.0
 
-# No Rabbits
-function plot_cond()
-end
+# Next, we examine the effect of action.  According to Pearl, action means intervening on the random variable being observed, which does not affect the past
+# In particular, if we were to increase the predator population by 5 at t_now, would the rabbit population be reduced?
 
-# Effect Of Action #
-sol_inc_rab = gencf(; affect! = integrator -> integrator.u[1] += 2.0,
+# Now we construct an intervened model where the we add 1.0 to the number of rabbits (prey)
+sol_inc_wolves = gencf(; affect! = integrator -> integrator.u[2] += 5.0,
                       t_int = constant(t_now),
                       tspan = constant((0, t_now * 2)))
 
 function plot_effect_action(; n = 100, alg = SSMH, kwargs...)
-  samples = rand((toomanyrabbits, sol, sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
-  norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
+  samples = rand((toomanyrabbits, sol, sol_inc_wolves), toomanyrabbits, n; alg = alg, kwargs...)
+  norabbit_, sol_, sol_inc_wolves_ = ntranspose(samples)
   p1 = plot(sol_[end], title = "Conditioned Model")
-  p2 = plot(sol_inc_rab_[end], title = "Action: Cull Prey")
-  display(p1)
-  display(p2)
+  p2 = plot(sol_inc_wolves_[end], title = "Action: Increase Wolves")
   p1, p2
 end
+#nb p1, p2 = plot_effect_action(); plot(p1, p2, layout = (1, 2))
 
-"Affect of increasing the number of predators"
-function plot_treatment_action(; n = 10000, alg = SSMH, kwargs...)
-  samples = rand((toomanyrabbits, replace(sol, tspan => constant((0, t_now * 2))), sol_inc_rab), toomanyrabbits, n; alg = alg, kwargs...)
-  norabbit_, sol_, sol_inc_rab_ = ntranspose(samples)
-  a = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_[div(n, 2):n]]
-  b = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_inc_rab_[div(n, 2):n]]
-  @show unique(b .- a)
-  @show b .- a
-  histogram(b .- a, title = "Prey Cull Treatment Effect", yaxis = false)
-  # norabbit_, sol_, sol_inc_rab_, a, b
-end
+# We can see the treatment effect of action.  I.e. rather than look a particular values, look at the the distribution over change.
 
-
-# Counter Factual #
-t_int = uniform(tspan[1], tspan[2]/2.0)
-sol_inc_pred = gencf(; t_int = t_int,
-                       affect! = integrator -> integrator.u[2] += 2.0)
-using ZenUtils
-
-function maxpop(sol)
-  xs = sol[]
-end
-
-function plot_inc_pred(; n = 100, alg = SSMH, kwargs...)
-  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
-  t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
-  println("intervention occured at time $(t_int_[end])")
-  # display(plot(logerr.(nor)))
-  # @grab sol_
-  # @assert false
-  x1, y1 = ntranspose(sol_[end].u)
-  x2, y2 = ntranspose(sol_inc_pred_[end].u)
-  m = max(maximum(x1), maximum(y1), maximum(x2), maximum(y2))
-
-  p1 = plot(sol_[end], title = "Conditioned Model", ylim = [0, m])
-  p2 = plot(sol_inc_pred_[end], title = "Counterfactual: Inc Predators", ylim = [0, m])
-  display(p1)
-  display(p2)
-  p1, p2
-end
-
-"Affect of increasing the number of predators"
-function plot_treatment(; n = 1000, alg = Replica, kwargs...)
-  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred), toomanyrabbits, n; alg = alg, kwargs...)
-  t_int_, nor, sol_, sol_inc_pred_ = ntranspose(samples)
-  sol_[end], sol_inc_pred_[end]
-  a = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_[500:1000]]
-  b = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_inc_pred_[500:1000]]
-  histogram(b .- a, title = "Pred Inc Treatment effect", yaxis = false)
-end
-
-"Values of i Population between a and b"
+"Extract values from ODE solution: population `id` between times `a` and `b`"
 function extractvals(v, id, a, b, ::Type{T} = Float64) where T
   res = Float64[]
   for i = 1:length(v)
@@ -167,89 +106,68 @@ function extractvals(v, id, a, b, ::Type{T} = Float64) where T
   res
 end
 
-# Plot
+"Effect of increasing the number of predators"
+function plot_treatment_action(; n = 10000, alg = SSMH, kwargs...)
+  samples = rand((toomanyrabbits, replace(sol, tspan => constant((0, t_now * 2))), sol_inc_wolves), toomanyrabbits, n; alg = alg, kwargs...)
+  norabbit_, sol_, sol_inc_wolves_ = ntranspose(samples)
+  a = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_[div(n, 2):n]]
+  b = [sum(extractvals(a, 1, 20.0, 40.0)) for a in sol_inc_wolves_[div(n, 2):n]]
+  # @show unique(b .- a)
+  # @show b .- a
+  histogram(b .- a, title = "Prey Cull Treatment Effect", yaxis = false)
+end
+#nb plot_treatment_action()
 
-function makeplots(; save = true, fname = joinpath(PLOTSPATH, "allfigs.pdf"))
-  @show fname
-  @show @__DIR__
-  plts_ea = plot_effect_action()
-  # plts = [sample() for i = 1:6]
-  plt = plot(plts_ea..., plot_inc_pred()..., plot_treatment_action(), plot_treatment(),
-             layout = (3,2),
-             legend = false)
-  display(plt)
-  save && savefig(plt, fname)
+# ### Counter Factual
+# Next, we consider the counterfactual: had we made an intervention at some previous time `t < t_now`, would the rabbit population have been less than it actually was over the last 10 days?
+# First we choose a random intervention time: `t_int`
+t_int = uniform(tspan[1], tspan[2]/2.0)
+
+# Construct the model that increases the number of predators at some time in the past
+sol_inc_pred_past = gencf(; t_int = t_int,
+                            affect! = integrator -> integrator.u[2] += 2.0)
+
+# Construct the model that decreases the number of prey at some time in the past
+sol_cull_prey_past = gencf(; t_int = t_int,
+                             affect! = integrator -> integrator.u[1] += 2.0)
+
+function plot_inc_pred(; n = 100, alg = SSMH, kwargs...)
+  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred_past, sol_cull_prey_past), toomanyrabbits, n; alg = alg, kwargs...)
+  t_int_, nor, sol_, sol_inc_pred_past_, sol_cull_prey_past_  = ntranspose(samples)
+  println("intervention occured at time $(t_int_[end])")
+  x1, y1 = ntranspose(sol_[end].u)
+  x2, y2 = ntranspose(sol_inc_pred_past_[end].u)
+  m = max(maximum(x1), maximum(y1), maximum(x2), maximum(y2))
+
+  p1 = plot(sol_[end], title = "Conditioned Model", ylim = [0, m])
+  p2 = plot(sol_inc_pred_past_[end], title = "Counterfactual: Inc Predators", ylim = [0, m])
+  p3 = plot(sol_cull_prey_past_[end], title = "Counterfactual: Cull Prey", ylim = [0, m])
+  p1, p2, p3
+end
+#nb p1, p2, p3 = plot_inc_pred(); plot(p1, p2, p3, layout = (1, 3))
+
+# Choosing a fixed time to intervene (e.g. $t = 5$)  is likely undesirable because it corresponds to an arbitrary (i.e.: parameter dependent) point in the predator-prey cycle.
+# Instead, the following snippet selects the intervention dynamically as a function of values in the non-intervened world.
+# `maxindex` is an auxilliary function which selects the index of the largest value and hence \texttt{tmostwolves} is a random variable over such values.
+
+  "Total number of rabbits"
+function totalrabbits_(ω; ndays = 10)
+  sol_ = sol(ω)
+  n = length(sol_)
+  rabbits = [sol_[i][1] for i = (n - ndays):n]
+  sum(rabbits)
 end
 
-# THINKING
-# 1. We need another cause that will make the rabbit population fall
-# 2. Cutting randomly doesn't make much sense
-#    Makes more sense to say if we had culled population 
-#    at its peak? at some maximum value
-# 3. Maybe we need to simulate for longer
-# 
 
-# samplecond1() = plot(rand(sol, norabbits, 1000)[end])
+"Affect of increasing the number of predators"
+function plot_treatment(; n = 1000, alg = Replica, kwargs...)
+  samples = rand((t_int, toomanyrabbits, sol, sol_inc_pred_past), toomanyrabbits, n; alg = alg, kwargs...)
+  t_int_, nor, sol_, sol_inc_pred_past_ = ntranspose(samples)
+  sol_[end], sol_inc_pred_past_[end]
+  a = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_[500:1000]]
+  b = [sum(extractvals(a, 1, 0.0, 10.0)) for a in sol_inc_pred_past_[500:1000]]
+  histogram(b .- a, title = "Pred Inc Treatment effect", yaxis = false)
+end
+#nb plot_treatment()
 
-# # But we know that at some time before there were rabbits and wolves
-# usetobeboth = any(sol[1] .>ₛ 5.0) & any(sol[2] .>ₛ 5.0)
-
-# samplecond2() = plot(rand(sol, norabbits, 1000)[end])
-
-# # Counterfactual if we had made an intervention to cull the number of foxes would there still be no rabbits
-# solcf = cond(solcf, norabbits)
-
-# function lotka_volterra_noise(du,u,p,tt)
-#   du[1] = 0.1u[1]
-#   du[2] = 0.1u[2]
-# end
-# dt = 1//2^(4)
-
-# μ = 1.0
-# σ = 2.0
-# W = ciid(ω ->  WienerProcess(0.0,0.0,0.0; rng = ω))
-# # W = ciid(ω -> GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0; rng = ω))
-# prob = ciid(ω -> SDEProblem(lotka_volterra,lotka_volterra_noise,[1.0,1.0],(0.0,10.0), p, noise = W(ω)))
-# sol = ciid(ω -> solve(prob(ω),EM()))
-
-
-# # Verify ODE solution
-# sol = solve(prob,Tsit5(), callback=cb, tstops = 4.0)
-# plot(sol)
-
-# # Generate data from the ODE
-# data_sol = solve(prob,Tsit5(),saveat=0.1)
-# A1 = data_sol[1,:] # length 101 vector
-# A2 = data_sol[2,:] # length 101 vector
-# t = 0:0.1:10.0
-# scatter!(t,A1,color=[1],label = "rabbits")
-# scatter!(t,A2,color=[2],label = "wolves")
-
-# # Build a neural network that sets the cost as the difference from the
-# # generated data and true data
-
-# p = param([4., 1.0, 2.0, 0.4]) # Initial Parameter Vector
-# function predict_rd() # Our 1-layer neural network
-#   diffeq_rd(p,prob,Tsit5(),saveat=0.1)
-# end
-# loss_rd() = sum(abs2,predict_rd()-data_sol) # loss function
-
-# # Optimize the parameters so the ODE's solution stays near 1
-
-# data = Iterators.repeated((), 1000)
-# opt = ADAM(0.1)
-# cb = function () #callback function to observe training
-#   #= display(loss_rd()) =#
-#   # using `remake` to re-create our `prob` with current parameters `p`
-#   scatter(t,A1,color=[1],label = "rabbit data")
-#   scatter!(t,A2,color=[2],label = "wolves data")
-#   display(plot!(solve(remake(prob,p=Flux.data(p)),Tsit5(),saveat=0.1),ylim=(0,6),labels = ["rabbit model","wolf model"],color=[1 2]))
-# end
-# # Display the ODE with the initial parameter values.
-# cb()
-# Flux.train!(loss_rd, [p], data, opt, cb = cb)
-
-# # Can we do an intervention on the Ode?
-
-
-end # module
+end
