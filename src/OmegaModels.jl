@@ -6,6 +6,7 @@ using DataFrames
 using Tensorboard
 using FileIO
 using Callbacks
+using Literate
 
 export infparams, infparams_, uptb, savejld, savejld2, savejldcb, rmmodule
 include("util.jl")

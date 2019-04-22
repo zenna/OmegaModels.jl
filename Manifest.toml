@@ -13,10 +13,10 @@ uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 version = "0.4.2"
 
 [[ArgCheck]]
-deps = ["Random", "Test"]
-git-tree-sha1 = "9e3bff61bc46d3420d903b53ad07f85325fddc28"
+deps = ["Random"]
+git-tree-sha1 = "dab25d711a1dedb707a55dbc1eb9fd578f76ff32"
 uuid = "dce04be8-c92d-5529-be00-80e4d2c0e197"
-version = "1.0.0"
+version = "1.0.1"
 
 [[Arpack]]
 deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
@@ -26,11 +26,6 @@ version = "0.3.0"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-
-[[BayesMNIST]]
-path = "/home/zenna/repos/OmegaModels.jl/models/BayesMNIST"
-uuid = "be6a050c-2882-5866-8da3-58089b1f3227"
-version = "0.1.0"
 
 [[BenchmarkTools]]
 deps = ["JSON", "Printf", "Statistics", "Test"]
@@ -70,7 +65,7 @@ version = "0.5.2"
 
 [[Callbacks]]
 deps = ["Lens", "ProgressMeter", "UnicodePlots"]
-git-tree-sha1 = "7695e214972185e23ec1dfd78db3566254f12a3a"
+git-tree-sha1 = "22fc345f00cd8e13c0e12bdc2695553eda882d44"
 repo-rev = "master"
 repo-url = "/home/zenna/repos/Callbacks.jl"
 uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
@@ -87,11 +82,6 @@ deps = ["Compat", "Future", "Missings", "Printf", "Reexport", "Requires"]
 git-tree-sha1 = "94d16e77dfacc59f6d6c1361866906dbb65b6f6b"
 uuid = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 version = "0.5.2"
-
-[[ClassifierRobustness]]
-path = "/home/zenna/repos/OmegaModels.jl/models/ClassifierRobustness/ClassifierRobustness"
-uuid = "2dbfd5c8-0519-5d8b-9aad-fbedf4f5ee25"
-version = "0.1.0"
 
 [[CodecZlib]]
 deps = ["BinaryProvider", "Libdl", "Test", "TranscodingStreams"]
@@ -172,10 +162,10 @@ deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
-deps = ["Distributed", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "dec0ebacfbc3a2126c614ab5e903c9ef063688d0"
+deps = ["LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns"]
+git-tree-sha1 = "0d048298541db10d16110508d5146f1fd13da971"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.17.0"
+version = "0.19.1"
 
 [[DocStringExtensions]]
 deps = ["LibGit2", "Markdown", "Pkg", "Test"]
@@ -255,6 +245,12 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 deps = ["Libdl"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
+[[Literate]]
+deps = ["Base64", "JSON", "REPL", "Test"]
+git-tree-sha1 = "021e2e3106713e22a7f3769ebf9f2f4469670444"
+uuid = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+version = "1.1.0"
+
 [[LogDensityProblems]]
 deps = ["ArgCheck", "BenchmarkTools", "DiffResults", "DocStringExtensions", "Parameters", "Pkg", "Random", "Requires", "Test", "TransformVariables"]
 git-tree-sha1 = "1ce5ebd16b5026a35cbf4daec66b2433b83d0d23"
@@ -315,7 +311,7 @@ version = "0.3.2"
 
 [[Omega]]
 deps = ["Callbacks", "Cassette", "DataStructures", "Distributions", "DocStringExtensions", "DynamicHMC", "Flux", "ForwardDiff", "Lens", "LogDensityProblems", "NLopt", "ProgressMeter", "Random", "Spec", "Statistics", "TransformVariables", "UnicodePlots"]
-git-tree-sha1 = "39bacbb107c02ccb792c83bdd17e59d1915778f7"
+git-tree-sha1 = "e9fdff224df4b9e410babfbecaf7a41222555a8b"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Omega.jl.git"
 uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
@@ -323,9 +319,9 @@ version = "0.1.0"
 
 [[OrderedCollections]]
 deps = ["Random", "Serialization", "Test"]
-git-tree-sha1 = "85619a3f3e17bb4761fe1b1fd47f0e979f964d5b"
+git-tree-sha1 = "c4c13474d23c60d20a67b217f1d7f22a40edf8f1"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.0.2"
+version = "1.1.0"
 
 [[PDMats]]
 deps = ["Arpack", "LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
@@ -358,10 +354,10 @@ uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "0.9.0"
 
 [[PyCall]]
-deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "Statistics", "Test", "VersionParsing"]
-git-tree-sha1 = "5a65d9bfd7099c2baa13d2aecf3cde752092a95b"
+deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Pkg", "Serialization", "Statistics", "Test", "VersionParsing"]
+git-tree-sha1 = "6e5bac1b1faf3575731a6a5b76f638f2389561d3"
 uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-version = "1.91.1"
+version = "1.91.2"
 
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra", "Test"]
@@ -470,7 +466,7 @@ version = "0.1.18"
 
 [[Tensorboard]]
 deps = ["PyCall"]
-git-tree-sha1 = "a181cc56f01c2fa7add6ef02b7981857204d2972"
+git-tree-sha1 = "d5fa7f07d513287378e93a45550c78af9ea3bb96"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Tensorboard.jl"
 uuid = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
@@ -493,10 +489,10 @@ uuid = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 version = "0.1.0"
 
 [[TranscodingStreams]]
-deps = ["Pkg", "Random", "Test"]
-git-tree-sha1 = "f42956022d8084539f1d7219f632542b0ea686ce"
+deps = ["Random", "Test"]
+git-tree-sha1 = "a25d8e5a28c3b1b06d3859f30757d43106791919"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.9.3"
+version = "0.9.4"
 
 [[TransformVariables]]
 deps = ["ArgCheck", "DocStringExtensions", "ForwardDiff", "LinearAlgebra", "MacroTools", "Parameters", "Pkg", "Random"]

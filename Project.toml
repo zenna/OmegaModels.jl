@@ -4,11 +4,10 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-BayesMNIST = "be6a050c-2882-5866-8da3-58089b1f3227"
 Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
-ClassifierRobustness = "2dbfd5c8-0519-5d8b-9aad-fbedf4f5ee25"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
 Tensorboard = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
 
