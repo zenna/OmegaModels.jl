@@ -43,8 +43,8 @@ prob = ciid(ω -> ODEProblem(lotka_volterra, u0(ω), tspan(ω), p(ω)))
 sol = lift(solve)(prob)
 
 # Plot four samples of time series from the prior
-plotfig1() = plot(rand(sol))
-#nb plot(plotfig1(), plotfig1(), plotfig1(), plotfig1(), layout = (2, 2))
+plotts(sol...; kwargs...) = plot(sol..., label = ["rabbits" "wolves"]; kwargs...)
+#nb plot(plotts(rand(sol)), plotts(rand(sol)), plotts(rand(sol)), plotts(rand(sol)), layout = (2, 2))
 
 # ### Counter-factual model (a random random variable over `solve(ODEProblem...))`
 "Generate a counterfatual model"
@@ -87,8 +87,8 @@ sol_inc_wolves = gencf(; affect! = integrator -> integrator.u[2] += 5.0,
 function plot_effect_action(; n = 100, alg = SSMH, kwargs...)
   samples = rand((toomanyrabbits, sol, sol_inc_wolves), toomanyrabbits, n; alg = alg, kwargs...)
   norabbit_, sol_, sol_inc_wolves_ = ntranspose(samples)
-  p1 = plot(sol_[end], title = "Conditioned Model")
-  p2 = plot(sol_inc_wolves_[end], title = "Action: Increase Wolves")
+  p1 = plotts(sol_[end], title = "Conditioned Model")
+  p2 = plotts(sol_inc_wolves_[end], title = "Action: Increase Wolves")
   p1, p2
 end
 #nb p1, p2 = plot_effect_action(); plot(p1, p2, layout = (1, 2))
@@ -139,9 +139,9 @@ function plot_inc_pred(; n = 100, alg = SSMH, kwargs...)
   x2, y2 = ntranspose(sol_inc_pred_past_[end].u)
   m = max(maximum(x1), maximum(y1), maximum(x2), maximum(y2))
 
-  p1 = plot(sol_[end], title = "Conditioned Model", ylim = [0, m])
-  p2 = plot(sol_inc_pred_past_[end], title = "Counterfactual: Inc Predators", ylim = [0, m])
-  p3 = plot(sol_cull_prey_past_[end], title = "Counterfactual: Cull Prey", ylim = [0, m])
+  p1 = plotts(sol_[end], title = "Conditioned Model", ylim = [0, m])
+  p2 = plotts(sol_inc_pred_past_[end], title = "Counterfactual: Inc Predators", ylim = [0, m])
+  p3 = plotts(sol_cull_prey_past_[end], title = "Counterfactual: Cull Prey", ylim = [0, m])
   p1, p2, p3
 end
 #nb p1, p2, p3 = plot_inc_pred(); plot(p1, p2, p3, layout = (1, 3))

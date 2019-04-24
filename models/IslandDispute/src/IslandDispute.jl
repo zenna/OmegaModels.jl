@@ -1,4 +1,3 @@
-"Population Level Inverse Planning and Counterfactuals"
 module IslandDispute
 
 using Omega
@@ -10,26 +9,34 @@ using StaticArrays
 using Parameters
 using Random
 using MCTS
-using UnicodePlots
+import UnicodePlots
 using DiscreteValueIteration
-import Plots
+using Plots: plot, histogram2d
+import StatsPlots
 
-# Consider a migration dispute between three hypothetical island nations (Figure \ref{fig:islandviz} Left):
+export runmodel, N, S, E, terraincostsmat, plotmigration
+
+#nb nsamples = 100;
+
+# Consider a migration dispute between three hypothetical island nations:
 # $S$ to the South, $E$ to the East and $N$ to the North.
-# The government of $S$ aims to reduce emigration of its population to the $N$, and considers constructing a barrier between $S$ and $N$ (Figure \ref{fig:islandviz} right).
+# The government of $S$ aims to reduce emigration of its population to the $N$, and considers constructing a barrier between $S$ and $N$.
 
-# We model this problem as counterfactional inference in a Markov Decision Process \cite{puterman2014markov} (MDP) model.
+# We model this problem as counterfactional inference in a Markov Decision Process (MDP) model.
 # To determine whether the border can be effective:
-# = We assume members of the population are rational: that they migrate according to their beliefs about the world and their objectives.
-# - We condition on observed migration patterns to infer a posterior belief over the population objectives.
+# - We will assume members of the population are rational: that they migrate according to their beliefs about the world and their objectives.
+# - We will condition on observed migration patterns to infer a posterior belief over the population objectives.
 # - In this conditional model, we consider the intervention (adding the barrier) and predict the resulting migration.
 
-# Concretely, we assume the world is a 7 by 6 grid and a world population of $1000$ residents.
-#`SimpleGridWorld` defines an MDP which we will solve for each member of the population using POMDPs
+# Concretely, we assume the world is a 7 by 6 grid and a world population of 1000 residents.
+# gridworld.jl defines `SimpleGridWorld` an MDP which we will construct and solve for each member of the population using POMDPs
+
 include("gridworld.jl")
 include("plots.jl")
 
-# Each cell is either land, water, or wall
+# ### The model
+
+# Each `Terrain` cell is either land, water, or wall
 
 "Piece of land, water or wall"
 struct Terrain
@@ -37,10 +44,10 @@ struct Terrain
   pos::Vector{GWPos}
 end
 
-# Each member of this universe receives cost at every time step
-# This cost is subjective and depends on the terrain
+# Each citizen of this universe receives cost at every time step of their life
+# This cost is subjective to that individual and depends on the terrain
 
-"Terrain with cost"
+"Encodes `cost` of existing in `Terrain` for a single time step"
 struct CostTerrain
   obj::Terrain
   cost::Float64
@@ -51,8 +58,6 @@ S = Terrain(1, [GWPos(2,1), GWPos(3, 1), GWPos(4, 1), GWPos(3,2)])
 N = Terrain(2, [GWPos(3,4), GWPos(2, 5), GWPos(3, 5), GWPos(4,5), GWPos(3,6)])
 E = Terrain(3, [GWPos(7,2), GWPos(6, 3), GWPos(7,3), GWPos(7,4)])
 islands = (S, N, E)
-
-# wall = Terrain(3, [GWPos(1,3), GWPos(2,3), GWPos(3,3), GWPos(4,3), GWPos(5,3)])
 
 # Wall is another kind of terrain (that is hard to cross)
 wall = Terrain(4, [GWPos(1,3), GWPos(2,3), GWPos(3,3), GWPos(4,3), GWPos(5,3),
@@ -71,7 +76,7 @@ for ter in [S, N, E, wall]
   end
 end
   
-"Rewards Dict from positiosn to values"
+"Rewards Dict from positions to values"
 function rewards(objects, defaultcost = watercost)
   rewards_ = Dict{GWPos, Float64}()
   for obj in objects
@@ -90,26 +95,27 @@ HIGH =  10.0
 NEUTRAL = 0.0
 LOW = -10.0
 
-# terraincostmat maps where a person is born to their beliefs about all other natiosn
+# `terraincostmat` maps where a person is born to their beliefs about all other natiosn
 terraincostsmat = [normal(LOW, 3.0) normal(NEUTRAL, 3.0) normal(HIGH, 3.0);
                    normal(LOW, 3.0) normal(HIGH, 3.0) normal(LOW, 3.0);
                    normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0)]
 
-terraincostsmatrv = constant(terraincostsmat)
+# terraincostsmatrv = constant(terraincostsmat)
+terraincostsmatrv = randarray(terraincostsmat)
 addwall = constant(false)
 
 "Simulate migration for one citizen"
-function solveworld(rng, ω; size = (7,6), defrward = watercost,
-                            solver = ValueIterationSolver(max_iterations=10, belres=1e-6))
+function solveworld(ω; size = (7,6), defrward = watercost,
+                       rng = MersenneTwister(12345))
   # Sample the island of birth uniformly along islands
-  birthisland = rand(rng, [islands...]) #FIXME? Should this be rng?
+  birthisland = rand(rng, [islands...])
 
   # Within the country sample a birth position
   birthplace_ = rand(rng, birthisland.pos)
   terraincostsmat_ = terraincostsmatrv(ω)
 
-  # Construct a believ about the world: i.e. costs of every terrain for this person
-  objects = [CostTerrain(obj, terraincostsmat_[birthisland.id, obj.id](ω)) for obj in islands]
+  # Construct a belief about the world: i.e. costs of every terrain for this person
+  objects = [CostTerrain(obj, terraincostsmat_[birthisland.id, obj.id]) for obj in islands]
 
   # Potentially add the wall to their set of beleifs
   if addwall(ω)
@@ -130,7 +136,11 @@ function solveworld(rng, ω; size = (7,6), defrward = watercost,
                         initialstate = birthplace_,
                         tprob = 0.99,
                         terminate_from = Set{GWPos}())
+end
 
+function actions_(mdp; solver = ValueIterationSolver(max_iterations=10, belres=1e-6),
+                      rng = MersenneTwister(12345),
+                      nsteps = 10)
   # Solve the mdp to construct a policy
   policy = solve(solver, mdp) # runs value iterations
 
@@ -139,7 +149,7 @@ function solveworld(rng, ω; size = (7,6), defrward = watercost,
   rs = Float64[]
   actions = Symbol[]
   # @show objects
-  for (s, a, r) in stepthrough(mdp, policy, "s,a,r", max_steps=10; rng = rng)
+  for (s, a, r) in stepthrough(mdp, policy, "s,a,r", max_steps = nsteps; rng = rng)
     push!(actions, a)
     push!(states, s)
     push!(rs, r)
@@ -152,17 +162,19 @@ function solveworld(rng, ω; size = (7,6), defrward = watercost,
   states
 end
 
-"Simulate global migration `npeople` people"
-function world(ω, npeople = 100, seed = 12345)
-  rng  = Random.MersenneTwister(seed)
-  statesseqs = Vector{GWPos}[]
+"Sequences of states traversed by all `npeople` people"
+function statesseqs(ω, npeople = 100, rng  = Random.MersenneTwister(12345))
+  statesseqs_ = Vector{GWPos}[]
   for i = 1:npeople
-    push!(statesseqs, solveworld(rng, ω))
+    mdp = solveworld(ω; rng = rng)
+    actionseq = actions_(mdp; rng = rng)
+    push!(statesseqs_, actionseq)
   end
-  statesseqs
+  statesseqs_
 end
 
-function migrationmovements(allseqs)
+"return[i][j] is total amount of time people born in region i spent in region j"
+function migrationmatrix(allseqs)
   mat = zeros(length(islands), length(islands) + 2)
   for stateseq in allseqs
     birth = invmap[stateseq[1]]
@@ -178,22 +190,56 @@ function migrationmovements(allseqs)
   mat
 end
 
-wrld = ciid(world)
+# `statesseqs_` is a random variable over actions that an individual takes
+statesseqs_ = ciid(statesseqs)
+
+function migrationmat_(ω)
+  samples = statesseqs_(ω)
+  allstates = vcat(samples...)
+  xs, ys = ntranspose(allstates)
+  migrationmatrix(samples)
+end
+
+# `migrationmat` is a random variable over migration matrices
+migrationmat = ciid(migrationmat_)
+
 function runmodel(; usereplmap = false, replmap = Dict())
   samples = usereplmap ? rand(replace(wrld, replmap)) : rand(wrld)
   allstates = vcat(samples...)
   xs, ys = ntranspose(allstates)
-  display(densityplot(xs, ys))
-  m = migrationmovements(samples)
+  histogram2d(xs, ys)
+  m = migrationmatrix(samples)
   return (m, samples, allstates)
 end
 
-terraincostsmat2 = [normal(LOW, 3.0) normal(NEUTRAL, 3.0) normal(HIGH, 3.0);
-                    normal(LOW, 3.0) normal(HIGH, 3.0) normal(LOW, 3.0);
-                    normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0)]
+# ### Conditional model
+# Suppose we observe migration behaviour, what does that tell us about their beliefs
+# First lets's plot some samples from the prior
 
-export runmodel, N, S, E, terraincostsmat, plotmigration
-# What uncertainty are we doing inference over?
-# Southeners have 
+#nb beliefsamples = rand(terraincostsmatrv, nsamples)
+#nb plt1 = plotbeliefs(destructure(beliefsamples, 1))
+#nb plt2 = plotbeliefs(destructure(beliefsamples, 2))
+#nb plt3 = plotbeliefs(destructure(beliefsamples, 3))
+#nb plot(plt1, plt2, plt3, layout = (1, 3))
+
+# We can consider the beliefs, if we were to observe the migration matrix
+obs_migrationmat =  [ 74.0    0.0  185.0   0.0  111.0
+                      0.0  350.0    0.0   0.0    0.0
+                      143.0    0.0   51.0  22.0   64.0]
+terraincostsmatrv_cond = cond(terraincostsmatrv, migrationmat ==ₛ obs_migrationmat)
+#nb cond_beliefsamples = rand(terraincostsmatrv_cond, nsamples; alg = SSMH)
+#nb plt1 = plotbeliefs(destructure(cond_beliefsamples, 1))
+#nb plt2 = plotbeliefs(destructure(cond_beliefsamples, 2))
+#nb plt3 = plotbeliefs(destructure(cond_beliefsamples, 3))
+#nb plot(plt1, plt2, plt3, layout = (1, 3))
+
+# ### Counterfactual
+# Now we can consider the counterfactual: Given that we haev observed migration patterns,
+# how would they be different if we had built a barrier?
+
+intervened = replace(cond(migrationmat, migrationmat ==ₛ obs_migrationmat), addwall => true)
+#nb migrationsamples = rand(intervened, nsamples; alg = SSMH)
+#nb plotmigration(migrationsamples[end], false)
+
 
 end
