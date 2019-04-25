@@ -95,7 +95,7 @@ toomanyrabbits = lift(Statistics.mean)(last10) ==ₛ 5.0
 seriescond = cond(series, toomanyrabbits)
 
 # Let's draw a few samples
-#nb nsamples = 100
+#nb nsamples = 5
 #nb res = rand(series, toomanyrabbits, nsamples; alg = Replica)
 #nb plot([plotts(rand(res)) for i = 1:4]..., layout = (2, 2)) 
 

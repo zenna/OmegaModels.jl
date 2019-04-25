@@ -1,15 +1,7 @@
-using InvRayTrace
-using InvRayTrace: Img
-using Omega
-using RayTrace
-import RayTrace
-import RayTrace: ListScene, rgb, msphere, Vec3, Sphere, Scene, render, nointersect
-import GeometryTypes: Point, Vec3
-
-# Render at 224 by 224 because
+# Render at 224 by 224 because thats the size the neural network takes as input
 rendersquare(x) = Img(RayTrace.render(x, width = 224, height = 224))
 
-# Define Prior Distribution over Scenes
+# Define Prior Distribution over Scenes (add 1 to ensure there is always at least one sphere)
 const nspheres = poisson(3) + 1
 
 "Random Variable over Spheres"
@@ -38,10 +30,10 @@ const img = lift(rendersquare)(scene)     # Prior distribution over images
 showscene(scene) = rgb.(render(scene; width = 300, height = 300)')
 
 # Sample from Prior
-showscene(rand(scene))
+#nb showscene(rand(scene))
 
 # Another Sample
-showscene(rand(scene))
+#nb showscene(rand(scene))
 
 "Example scene to create observed image"
 function obs_scene()
@@ -57,14 +49,14 @@ end
 const img_obs = rendersquare(obs_scene())
 
 # Show the observation
-showscene(obs_scene())
+#nb showscene(obs_scene())
 
 function sampleposterior(n = 1000)
   samples = rand(scene, img ==ₛ img_obs, n; alg = SSMH)
 end
 
-scenesamples = sampleposterior()
-showscene(scenesamples[end])
+#nb scenesamples = sampleposterior()
+#nb showscene(scenesamples[end])
 
 function sampleposterior_noi(n = 50000; noi = false, alg = SSMH, gamma = 1.0, kwargs...)
   logdir = Random.randstring()
