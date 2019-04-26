@@ -11,7 +11,7 @@ include("viz.jl")
 # We know the  equations of motion are:
 
 # ```math
-# x(t) = v_0 \cos \theta t\\
+# x(t) = v_0 \cos \theta t  \;\;\;\;\;\; \\
 # y(t) = v_0 \sin \theta t - \frac{1}{2}gt^2
 # ```
  
@@ -42,11 +42,11 @@ end
 const series = lift(simulate)(u0, v0, θ, g)
 
 # ### But-For causality
-# Next we will add a (yellow) ball to the scene, which the projective may or may not hit.
+# Next we will add a (yellow) ball to the scene, which the projectile may or may not hit.
 
 # We assume a ball of constant radius and position
 const ball_radius = constant(0.5)
-const ball_pos = constant((8.0, 0.25))
+const ball_pos = constant((8.0, 0.25));
 
 # We can simulate projectile samples from the prior
 #nb series_, ball_pos_, ball_radius_ = rand((series, ball_pos, ball_radius))
