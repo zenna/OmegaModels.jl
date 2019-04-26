@@ -13,6 +13,7 @@ import UnicodePlots
 using DiscreteValueIteration
 using Plots: plot, histogram2d
 import StatsPlots
+import Plots
 
 export runmodel, N, S, E, terraincostsmat, plotmigration
 
@@ -54,19 +55,19 @@ struct CostTerrain
 end
 
 # Islands: South, North, East
-S = Terrain(1, [GWPos(2,1), GWPos(3, 1), GWPos(4, 1), GWPos(3,2)])
-N = Terrain(2, [GWPos(3,4), GWPos(2, 5), GWPos(3, 5), GWPos(4,5), GWPos(3,6)])
-E = Terrain(3, [GWPos(7,2), GWPos(6, 3), GWPos(7,3), GWPos(7,4)])
-islands = (S, N, E)
+const S = Terrain(1, [GWPos(2,1), GWPos(3, 1), GWPos(4, 1), GWPos(3,2)])
+const N = Terrain(2, [GWPos(3,4), GWPos(2, 5), GWPos(3, 5), GWPos(4,5), GWPos(3,6)])
+const E = Terrain(3, [GWPos(7,2), GWPos(6, 3), GWPos(7,3), GWPos(7,4)])
+const islands = (S, N, E);
 
 # Wall is another kind of terrain (that is hard to cross)
-wall = Terrain(4, [GWPos(1,3), GWPos(2,3), GWPos(3,3), GWPos(4,3), GWPos(5,3),
-                   GWPos(1,4), GWPos(1, 5), GWPos(1, 6),
-                   GWPos(5,4), GWPos(5, 5), GWPos(5, 6)])
+const wall = Terrain(4, [GWPos(1,3), GWPos(2,3), GWPos(3,3), GWPos(4,3), GWPos(5,3),
+                         GWPos(1,4), GWPos(1, 5), GWPos(1, 6),
+                         GWPos(5,4), GWPos(5, 5), GWPos(5, 6)])
 
 # We'll assume that the cost of being in water or traversing a wall is constant among the population
-watercost = -10.0
-wallcost = -30
+const watercost = -10.0
+const wallcost = -30
 
 # Construct an inverse map from position to the terrain type
 const invmap = Dict()
@@ -91,21 +92,21 @@ function rewards(objects, defaultcost = watercost)
   rewards_
 end
 
-HIGH =  10.0
-NEUTRAL = 0.0
-LOW = -10.0
+const HIGH =  10.0
+const NEUTRAL = 0.0
+const LOW = -10.0
 
 # `terraincostmat` maps where a person is born to their beliefs about all other natiosn
-terraincostsmat = [normal(LOW, 3.0) normal(NEUTRAL, 3.0) normal(HIGH, 3.0);
-                   normal(LOW, 3.0) normal(HIGH, 3.0) normal(LOW, 3.0);
-                   normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0)]
+const terraincostsmat = [normal(LOW, 3.0) normal(NEUTRAL, 3.0) normal(HIGH, 3.0);
+                         normal(LOW, 3.0) normal(HIGH, 3.0) normal(LOW, 3.0);
+                         normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0) normal(NEUTRAL, 3.0)]
 
 # terraincostsmatrv = constant(terraincostsmat)
-terraincostsmatrv = randarray(terraincostsmat)
-addwall = constant(false)
+const terraincostsmatrv = randarray(terraincostsmat)
+const addwall = constant(false)
 
 "Simulate migration for one citizen"
-function solveworld(ω; size = (7,6), defrward = watercost,
+function createmdp(ω; size = (7,6), defrward = watercost,
                        rng = MersenneTwister(12345))
   # Sample the island of birth uniformly along islands
   birthisland = rand(rng, [islands...])
@@ -146,19 +147,9 @@ function actions_(mdp; solver = ValueIterationSolver(max_iterations=10, belres=1
 
   # Act according to the policy for 10 time steps
   states = GWPos[]
-  rs = Float64[]
-  actions = Symbol[]
-  # @show objects
   for (s, a, r) in stepthrough(mdp, policy, "s,a,r", max_steps = nsteps; rng = rng)
-    push!(actions, a)
     push!(states, s)
-    push!(rs, r)
-    # @show s
   end
-  # @show actions
-  # @show states
-  # @show rs
-  # println("\n\n")
   states
 end
 
@@ -166,7 +157,7 @@ end
 function statesseqs(ω, npeople = 100, rng  = Random.MersenneTwister(12345))
   statesseqs_ = Vector{GWPos}[]
   for i = 1:npeople
-    mdp = solveworld(ω; rng = rng)
+    mdp = createmdp(ω; rng = rng)
     actionseq = actions_(mdp; rng = rng)
     push!(statesseqs_, actionseq)
   end
@@ -191,7 +182,7 @@ function migrationmatrix(allseqs)
 end
 
 # `statesseqs_` is a random variable over actions that an individual takes
-statesseqs_ = ciid(statesseqs)
+const statesseqs_ = ciid(statesseqs)
 
 function migrationmat_(ω)
   samples = statesseqs_(ω)
@@ -201,45 +192,40 @@ function migrationmat_(ω)
 end
 
 # `migrationmat` is a random variable over migration matrices
-migrationmat = ciid(migrationmat_)
-
-function runmodel(; usereplmap = false, replmap = Dict())
-  samples = usereplmap ? rand(replace(wrld, replmap)) : rand(wrld)
-  allstates = vcat(samples...)
-  xs, ys = ntranspose(allstates)
-  histogram2d(xs, ys)
-  m = migrationmatrix(samples)
-  return (m, samples, allstates)
-end
+const migrationmat = ciid(migrationmat_)
 
 # ### Conditional model
 # Suppose we observe migration behaviour, what does that tell us about their beliefs
 # First lets's plot some samples from the prior
 
 #nb beliefsamples = rand(terraincostsmatrv, nsamples)
-#nb plt1 = plotbeliefs(destructure(beliefsamples, 1))
-#nb plt2 = plotbeliefs(destructure(beliefsamples, 2))
-#nb plt3 = plotbeliefs(destructure(beliefsamples, 3))
+#nb plt1 = plotbeliefs(destructure(beliefsamples, 1), title = "S reward beliefs")
+#nb plt2 = plotbeliefs(destructure(beliefsamples, 2), title = "N reward beliefs")
+#nb plt3 = plotbeliefs(destructure(beliefsamples, 3), title = "E reward beliefs")
 #nb plot(plt1, plt2, plt3, layout = (1, 3))
 
-# We can consider the beliefs, if we were to observe the migration matrix
-obs_migrationmat =  [ 74.0    0.0  185.0   0.0  111.0
-                      0.0  350.0    0.0   0.0    0.0
-                      143.0    0.0   51.0  22.0   64.0]
-terraincostsmatrv_cond = cond(terraincostsmatrv, migrationmat ==ₛ obs_migrationmat)
-#nb cond_beliefsamples = rand(terraincostsmatrv_cond, nsamples; alg = SSMH)
-#nb plt1 = plotbeliefs(destructure(cond_beliefsamples, 1))
-#nb plt2 = plotbeliefs(destructure(cond_beliefsamples, 2))
-#nb plt3 = plotbeliefs(destructure(cond_beliefsamples, 3))
+# We can consider the posterior beliefs if we were to observe a migration matrix
+const obs_migrationmat =  [ 74.0    0.0  185.0   0.0  111.0
+                            0.0  350.0    0.0   0.0    0.0
+                            143.0    0.0   51.0  22.0   64.0]
+const terraincostsmatrv_cond = cond(terraincostsmatrv, migrationmat ==ₛ obs_migrationmat)
+#nb condmigrationmat, cond_beliefsamples = ntranspose(rand((migrationmat, terraincostsmatrv_cond), nsamples; alg = Replica))
+#nb plt1 = plotbeliefs(destructure(cond_beliefsamples, 1), title = "S reward beliefs")
+#nb plt2 = plotbeliefs(destructure(cond_beliefsamples, 2), title = "N reward beliefs")
+#nb plt3 = plotbeliefs(destructure(cond_beliefsamples, 3), title = "E reward beliefs")
 #nb plot(plt1, plt2, plt3, layout = (1, 3))
+
+# Let's show a migration matrix
+#nb plots = [plotmigration(x, false) for x in rand(condmigrationmat, 4)]
+#nb plot(plots..., layout = (2, 2))
 
 # ### Counterfactual
 # Now we can consider the counterfactual: Given that we haev observed migration patterns,
 # how would they be different if we had built a barrier?
 
-intervened = replace(cond(migrationmat, migrationmat ==ₛ obs_migrationmat), addwall => true)
-#nb migrationsamples = rand(intervened, nsamples; alg = SSMH)
-#nb plotmigration(migrationsamples[end], false)
-
+const intervened = replace(cond(migrationmat, migrationmat ==ₛ obs_migrationmat), addwall => true)
+#nb migrationsamples = rand(intervened, nsamples; alg = Replica)
+#nb plots = [plotmigration(x, false) for x in rand(migrationsamples, 4)]
+#nb plot(plots..., layout = (2, 2))
 
 end

@@ -149,7 +149,7 @@ function eulergen(t_int, u_int)
 end
 
 # The next snippet intervenes on `series` using replace (i.e., do) to replace `euler` with an alternative version `eulerint` which increases the number of prediators.
-const tnow = 10
+const tnow = 20
 inc_pred(u) = (u[1]/2, u[2] + 5)
 const eulerint = eulergen(tnow, inc_pred)
 const series_int = replace(series, euler_ => constant(eulerint))
@@ -160,9 +160,9 @@ const series_act = replace(seriescond, Dict(euler_ => constant(eulerint), tmax =
 #nb plot([plotts(rand(res)) for i = 1:4]..., layout = (2, 2))
 
 # Next, we consider the counterfactual: had we made an intervention at some previous time `t < t_now`, would the rabbit population have been less than it actually was over the last 10 days?
-const tnow = 20
+const pasttime = 10
   cull_prey(u) = (u[1]/2, u[2])
-const eulercf = eulergen(tnow, cull_prey)
+const eulercf = eulergen(pasttime, cull_prey)
 const series_cf = replace(seriescond, Dict(euler_ => constant(eulercf)));
 # We could also write: const series_cf = replace(seriescond, euler => eulercf)
 #nb res = rand(series_cf, nsamples; alg = Replica)

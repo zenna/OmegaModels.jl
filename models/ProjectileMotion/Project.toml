@@ -1,0 +1,14 @@
+name = "ProjectileMotion"
+uuid = "d0a5cb5f-0e24-5fb2-bbbf-a8f31d6ac29e"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
+Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
