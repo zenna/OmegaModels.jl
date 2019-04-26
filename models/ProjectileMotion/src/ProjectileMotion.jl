@@ -117,11 +117,11 @@ end
 # Next, we must construct a causal world world where the condition is true (the projectile hits):
 #nb ωs = rand(Random.MersenneTwister(), defΩ(Replica), logerr(projectile_hits),  1000, Replica);
 
-# Take a single sample from this set and do a sanity check (the project really does hit)
+# Take a single sample from this set and do a sanity check (the projectile really does hit)
 #nb ω = ωs[end]
 #nb Bool(projectile_hits(ω))
 
-# Finally, we can check but-for causality: in world ω, is value that θ takes in this world cause of prjectile hitting? 
+# Finally, we can check but-for causality: in world ω, is value that θ takes in this world cause of the projectile hitting? 
 #nb Omega.iscausebf(ω, θ ==ₛ θ(ω), projectile_hits, [θ], proj = first)
 
 
