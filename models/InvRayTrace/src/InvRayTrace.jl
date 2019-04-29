@@ -21,7 +21,6 @@ include("net.jl")
 include("prior.jl")
 include("notebook.jl")
 
-
 export img, scene, img_obs
 
 

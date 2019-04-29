@@ -20,15 +20,6 @@ function nointersect(s1::MaterialGeom, s2::MaterialGeom)
   a = d1 >ₛ d2
 end
 
-# function sall(xs)
-#   @show typeof(xs)
-#   @assert false
-#   if isempty(xs)
-#     return Omega.softtrue()
-#   end
-#   all(xs)
-# end
-
 "Do any objects in the scene intersect with any other"
 intersect(sc::Scene) = any(pairwisef(intersects, sc))
 nointersect(sc::Scene) = allₛ(pairwisef(nointersect, sc))
