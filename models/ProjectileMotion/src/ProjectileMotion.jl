@@ -7,7 +7,9 @@ import Statistics
 using Random
 include("viz.jl")
 
-# Consider a projectile launched at an angle θ with initial velocity vo on a level plane
+# ### Projectile Motion
+
+# Consider a projectile launched at an angle θ with initial velocity $v_0$ on a level plane
 # We know the  equations of motion are:
 
 # ```math
@@ -39,9 +41,9 @@ function simulate(u0, v0, θ, g; maxsteps = 10000, Δt = 0.01)
 end
 
 # `series` is a random variable over position of the projectile
-const series = lift(simulate)(u0, v0, θ, g)
+const series = lift(simulate)(u0, v0, θ, g);
 
-# ### But-For causality
+# ### Ball Collision
 # Next we will add a (yellow) ball to the scene, which the projectile may or may not hit.
 
 # We assume a ball of constant radius and position
@@ -69,7 +71,7 @@ const projectile_hits = ciid(projectile_hits_)
 # The prior probability that the projectile hits the ball can be approximated:
 #nb Statistics.mean(Bool.(rand(projectile_hits, 1000)))
 
-# Find a world where the conditions are true
+# Now, we sample a world where the conditions are true:
 #nb post_samples = rand((series, ball_pos, ball_radius), projectile_hits, 1000; alg = Replica)
 #nb series_, ball_pos_, ball_radius_ = ntranspose(post_samples)
 #nb i = rand(1:length(series_))
@@ -79,9 +81,9 @@ const projectile_hits = ciid(projectile_hits_)
 
 # We will now use but-for causality to determine whether the angle of projection is the cause of the projectile hitting the ball
 
-# But-for causality looks for an intervention that invalidates the cause and the effect
-# Since we have soft constraints, we formulate this as an optimization problem
-# The following function sketches the implementation of but_for.  The full implementation can be found in our version
+# But-for causality looks for an intervention that invalidates the cause and the effect.
+# Since we have soft constraints, we formulate this as an optimization problem.
+# The following function sketches the implementation of but_for.  The full implementation can be found in our extension of Omega.
 
 """
 `iscausebf(ω, c, e, iset; kwargs...)`
