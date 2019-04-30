@@ -3,7 +3,6 @@ module OmegaModels
 
 using Omega
 using DataFrames
-using Tensorboard
 using FileIO
 using Callbacks
 using Literate

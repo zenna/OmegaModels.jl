@@ -9,7 +9,6 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
-Tensorboard = "0b0dfcba-97db-11e8-112a-b5f40c7258d9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

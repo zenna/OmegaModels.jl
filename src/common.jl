@@ -1,11 +1,11 @@
-"Update Tensorboard"
-function uptb(writer, name, field, verbose = true)
-  function updateaccuracy(data)
-    val = getfield(data, field)
-    verbose && println("Saving $name to Tensorboard: $val")
-    Tensorboard.add_scalar!(writer, name, val, data.i)
-  end
-end
+# "Update Tensorboard"
+# function uptb(writer, name, field, verbose = true)
+#   function updateaccuracy(data)
+#     val = getfield(data, field)
+#     verbose && println("Saving $name to Tensorboard: $val")
+#     Tensorboard.add_scalar!(writer, name, val, data.i)
+#   end
+# end
 
 ## Std Inf Alg Params
 "Optimization-specific parameters"
