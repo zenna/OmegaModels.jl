@@ -5,6 +5,7 @@ using Omega.Inference: ReplicaAlg
 using Plots
 import Statistics
 using Random
+using Omega.Soft: DualSoftBool
 include("viz.jl")
 
 # ### Projectile Motion
@@ -74,8 +75,8 @@ const projectile_hits = ciid(projectile_hits_)
 # Now, we sample a world where the conditions are true:
 #nb post_samples = rand((series, ball_pos, ball_radius), projectile_hits, 1000; alg = Replica)
 #nb series_, ball_pos_, ball_radius_ = ntranspose(post_samples)
-#nb i = rand(1:length(series_))
-#nb vizscene(series_[i], ball_pos_[i], ball_radius_[i])
+#nb plots = [vizscene(series_[i], ball_pos_[i], ball_radius_[i]) for i in rand(1:length(series_), 4)]
+#nb plot(plots...; layout = (2, 2))
 
 # ### But For Causality
 
@@ -124,7 +125,13 @@ end
 #nb Bool(projectile_hits(ω))
 
 # Finally, we can check but-for causality: in world ω, is value that θ takes in this world cause of the projectile hitting? 
+# `proj` maps a vector of reals (which the optimization algorithms expect) into the value of the type of the intervened variable.
+# Since we are only dealing with a scalar, we just select its `first` element
 #nb Omega.iscausebf(ω, θ ==ₛ θ(ω), projectile_hits, [θ], proj = first)
 
+# We can ask a different but-for question: in world ω, is the fact that the projectile hit, the cause of the angle θ?
+# `proj` is more complex since we must construct a soft boolean from a real value.
+#nb proj(x) = DualSoftBool(SoftBool(x[1]), SoftBool(x[1]))
+#nb Omega.iscausebf(ω, projectile_hits, θ ==ₛ θ(ω), [projectile_hits], proj = proj)
 
 end
