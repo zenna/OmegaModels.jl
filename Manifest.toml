@@ -40,10 +40,10 @@ uuid = "9e28174c-4ba2-5203-b857-d8d62c4213ee"
 version = "0.8.10"
 
 [[BinaryProvider]]
-deps = ["Libdl", "Pkg", "SHA", "Test"]
-git-tree-sha1 = "055eb2690182ebc31087859c3dd8598371d3ef9e"
+deps = ["Libdl", "SHA"]
+git-tree-sha1 = "c7361ce8a2129f20b0e05a89f7070820cfed6648"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.5.3"
+version = "0.5.4"
 
 [[CMake]]
 deps = ["BinDeps", "Libdl", "Test"]
@@ -65,9 +65,9 @@ version = "0.5.2"
 
 [[Callbacks]]
 deps = ["Lens", "ProgressMeter", "UnicodePlots"]
-git-tree-sha1 = "22fc345f00cd8e13c0e12bdc2695553eda882d44"
+git-tree-sha1 = "b2afa1ecab93cf1c18202892792c32a8803f5e9a"
 repo-rev = "master"
-repo-url = "/home/zenna/repos/Callbacks.jl"
+repo-url = "https://github.com/zenna/Callbacks.jl"
 uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
 version = "0.1.0"
 
