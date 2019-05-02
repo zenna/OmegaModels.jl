@@ -1,0 +1,12 @@
+name = "NeuralScene"
+uuid = "90cf0b06-6c50-11e9-0563-3d7c9a957344"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+DSLearn = "3b80dbfc-8db2-11e8-22e5-79da9c3bc97d"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+RayTrace = "9441d024-97fe-11e8-2154-4d1b79854d30"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
