@@ -131,6 +131,12 @@ git-tree-sha1 = "4c4d727f1b7e0092134fabfab6396b8945c1ea5b"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.3"
 
+[[GeometryTypes]]
+deps = ["ColorTypes", "FixedPointNumbers", "IterTools", "LinearAlgebra", "StaticArrays", "Test"]
+git-tree-sha1 = "a9bc71d5a7eb971b61db353eb66c4a1de0551d8c"
+uuid = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
+version = "0.7.3"
+
 [[IRTools]]
 deps = ["InteractiveUtils", "MacroTools", "Test"]
 git-tree-sha1 = "c13132944350119d1b94f1698d603566654bf57a"
@@ -140,6 +146,12 @@ version = "0.2.0"
 [[InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[IterTools]]
+deps = ["SparseArrays", "Test"]
+git-tree-sha1 = "79246285c43602384e6f1943b3554042a3712056"
+uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+version = "1.1.1"
 
 [[Juno]]
 deps = ["Base64", "Logging", "Media", "Profile", "Test"]
@@ -349,6 +361,8 @@ version = "0.8.1"
 
 [[Zygote]]
 deps = ["DiffRules", "ForwardDiff", "IRTools", "InteractiveUtils", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics"]
-git-tree-sha1 = "7f31d606965a9c37f6ddf06c9082b17370e0eb7e"
+git-tree-sha1 = "b0256bf2d70a10abb9de8471b84b79ca0d0ecd3b"
+repo-rev = "master"
+repo-url = "https://github.com/FluxML/Zygote.jl.git"
 uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
 version = "0.3.0"

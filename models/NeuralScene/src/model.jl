@@ -18,10 +18,14 @@ function Linearize.unlinearize(::Type{NamedTuple{(:hit, :geom, :tnear), Tuple{Bo
 end
 
 function RayTrace.sceneintersect(r::Ray, scene::DeepScene)
-  inp = linearize(Vector{Float64}, (r, scene)) # zt: what type should this be?
+  # inp = linearize(Vector{Float64}, (r, scene)) # zt: what type should this be?
+  # inp = [r.orig.data...; r.dir.data...; scene.ir]
+  input = [r.orig[1], r.orig[2], r.orig[3], r.dir[1], r.dir[2], r.dir[3], scene.ir...]
+  # (true, false, sum(input))
   net_ = net(typeof(sceneintersect), Ray, DeepScene)
-  out = net_(inp)
-  unlinearize(NamedTuple{(:hit, :geom, :tnear), Tuple{Bool,Float64,Float64}}, out)
+  out = net_(input)
+  (true, false, first(out))
+  # unlinearize(NamedTuple{(:hit, :geom, :tnear), Tuple{Bool,Float64,Float64}}, out)
 end
   # hit, geom, tnear # zt: how to delinearize
   # Hit as a boolean, geom as the object it hit, and tnear is the distance to
