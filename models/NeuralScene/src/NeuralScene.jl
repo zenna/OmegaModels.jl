@@ -1,10 +1,6 @@
 module NeuralScene
 
 # Zygote issues
-# 1. iteration of two variables for i == .., j = ... breaks
-# 2. using named tuple breaks 
-# 3. div/rem causaing   non differentiable error
-
 
 using RayTrace
 using Flux
@@ -77,17 +73,7 @@ function train(opt = ADAM(0.001), niterations = 100)
     grads = gradient(paramsa) do
       neural_img = RayTrace.renderfunc(deepscene; x.render_params...)
       loss = distance(neural_img, img)
-      @show loss
     end
-    @show grads
-    # @show length(grads)
-    # grads = grads[1]
-    # @show grads[net_, W]
-    @show grads[W_]
-    @show grads[deepscene.ir]
-    # for p in (deepscene.ir, W_)
-    #   update!(opt, p, grads[p])
-    # end
     grads_ = map(x -> grads[x], params_)
     zyg_update!(opt, params_, grads_)
   end
