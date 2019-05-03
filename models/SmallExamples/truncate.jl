@@ -1,8 +1,10 @@
 using Omega
 # using Plots
 using Distributions
+using Measures
+using Printf
 using Plots
-import StatPlots
+import StatsPlots
 
 
 "Sample from truncatedistd distribution"
@@ -18,23 +20,57 @@ function sample(αs; kwargs...)
   samples = [truncatedist(x, 0.0, 1.0, k, 100000; kwargs...) for k in kernels]
 end
 
-function subplot(samples, α, plt = plot())
-  density!(samples, label = "a = $α",
+function subplot(samples, α, c, plt = plot())
+  αname = @sprintf("%.2f", 1/α)
+  StatsPlots.density!(samples, label = "\\alpha = $(αname)",
                     #  m=(0.001,:auto),
-                     style = :auto,
-                     w = 2.0)
+                     c = c,
+                     legend=:topleft,
+                     top_margin=6mm,
+                     style = :solid,
+                    #  alpha=0.75,
+                    #  fill=(0,),
+                     w = 9,
+                     titlefontsize=18,
+                     legendfontsize=16,
+                     tickfontsize=12)
 end
 
-function plotdist(αs, samples, save = false)
-  plt = plot(title = "Truncated Normal through Conditioning")
-  foreach((α, s) ->  subplot(s, α, plt), αs, samples)
-  save && savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "truncatedistd.pdf"))
+function subplot_fill(samples, α, c, plt = plot())
+  αname = @sprintf("%.2f", 1/α)
+  StatsPlots.density!(samples, label = "\\alpha = $(αname)",
+                     c = c,
+                     legend=:topleft,
+                     style = :solid,
+                     alpha=0.75,
+                     fill=(0,),
+                     w = .1,
+                     titlefontsize=18,
+                     legendfontsize=16,
+                     tickfontsize=12)
+end
+
+function plotdist(αs, samples, colors, save = false)
+  plt = plot(title = "Truncated Normal through Conditioning");
+  # alternative color map
+  # colors = ["#ff7f00", "#984ea3", "#4daf4a", "#377eb8"]
+  foreach((α, s, c) ->  subplot(s, α, c, plt), αs, samples, colors)
+  save
+  savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "truncatedistd.pdf"))
   plt
 end
 
+function createcolors(αs)
+  PlotUtils.clibrary(:cmocean)
+  C(g::ColorGradient) = RGB[g[z] for z=range(0,stop=1,length=length(αs)+1)]
+  (cgrad(:grays_r) |> C)[2:end]
+end
+
 function main(; kwargs...)
+  
   αs = [0.1, 1.0, 10.0, 100.0]
-  plotdist(αs, sample(; kwargs...))
+  colors = createcolors(αs)
+  plotdist(αs, sample(αs; kwargs...), colors)
 end
 
 main(; alg = NUTS)
