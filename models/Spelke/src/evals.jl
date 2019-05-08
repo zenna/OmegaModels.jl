@@ -1,7 +1,5 @@
 using StatsBase
 
-include("distances.jl")
-
 function evalposterior(samples, realvideo, verbose=false, visual=false)
   distancematrix = [surjection(realvideo[j].objects, samples[x][j].objects) for j=1:length(realvideo), x=1:length(samples)]
   # Part 1: Get average distance of each sample.

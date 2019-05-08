@@ -1,16 +1,4 @@
-module Spelke
-using Omega
-using UnicodePlots
-using CSV
-using DataFrames
-using RunTools
-using ArgParse
-using PDMats
-
-include("distances.jl")
-include("evals.jl")
-
-lift(:(Base.getindex), 2)
+# lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
 
@@ -52,7 +40,7 @@ struct Image{O}
 end
 
 "Render scene into an image"
-render(scene, camera)::Image = scene
+render(scene, camera) = scene
 
 function blockedarea(a, b)
   # Compute area that a blocks in b
@@ -73,7 +61,7 @@ function render(scene)
   # returns probability proportional to percentage of overlap.
   # But should be changed to be a learned thing.
   blockmatrix = [blockedarea(a, b) for a in scene.objects, b in scene.objects]
-  print(blockmatrix)
+  # print(blockmatrix)
   objectids = Int[]
   for objid = 1:length(scene.objects)
     if rand() >= sum(blockmatrix[:, objid])
@@ -135,7 +123,7 @@ function move(ω, scene::Scene)
   Scene(map(iobj -> move(ω[iobj[1]], iobj[2]), enumerate(scene.objects)), scene.camera)
 end
 
-"Simulate `nsteps`"
+"Simulate `nsteps` starting at `scene`"
 function video_(ω, scene::Scene = initscene(ω), nsteps = 1000, f = identity)
   trajectories = Scene[]
   for i = 1:nsteps
@@ -147,8 +135,7 @@ end
 
 video_(ω, data::Vector, nsteps = 1000, f = identity) = video_(ω, initscene(ω, data), nsteps, f)
 
-## GP model
-## ========
+# GP model
 
 d(x1, x2) = x1 - x2
 K(x1, x2; l=0.1) = exp(-(d(x1, x2)^2)/(2l^2))
@@ -186,8 +173,7 @@ function testgpprior()
   viz(samples)
 end
 
-## Inference
-## =========
+# Inference
 
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
@@ -217,80 +203,14 @@ function Omega.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   Omega.SoftBool(e + eps)
 end
 
-## Visualization
-## =============
-# include("video.jl")
-
-"Four points (x, y) - corners of `box`"
-function corners(box)
-  ((box.x, box.y),
-   (box.x + box.Δx, box.y),
-   (box.x + box.Δx, box.y - box.Δy),
-   (box.x, box.y -  box.Δy))
-end
-
-"Draw Box"
-function draw(obj, canvas, color = :blue)
-  corners_ = corners(obj)
-  for i = 1:length(corners_)
-    p1 = corners_[i]
-    p2 = i < length(corners_) ? corners_[i + 1] : corners_[1]
-    lines!(canvas, p1..., p2..., color)
-  end
-  canvas
-end
-
-"Fix aspect ratio (account that uncicode is taller than wide)"
-fixao(x, y; aspectratio = 0.5) = (x, Int(y * aspectratio))
-
-"Draw Scene"
-function draw(scene::Scene,
-              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -50.0, origin_y = -50.0,
-                                     width = scene.camera.Δx + 10, height = scene.camera.Δy + 10))
-  draw(scene.camera, canvas, :red)
-  foreach(obj -> draw(obj, canvas, :blue), scene.objects)
-  canvas
-end
-
-"Draw a sequence of frames"
-function viz(vid, sleeptime = 0.02)
-  foreach(vid) do o
-    display(draw(o))
-    sleep(sleeptime)
-  end
-end
-
 ## Run
-## ===
-datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
+# datapath = joinpath(datadir(), "TwoBalls", "TwoBalls_DetectedObjects.csv")
+# datapath = joinpath(datadir(), "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
+# datapath = joinpath(datadir(), "TwoBalls", "TwoBalls_DetectedObjects.csv")
+# datapath = joinpath(datadir(), "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
 
-function train(n = 10000)
-  # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-  # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
-  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
-
-  data = CSV.read(datapath)
-  nframes = length(unique(data[:frame]))
+"From the data set, construct a video: a sequence of frames"
+function genrealvideo(data)
   frames = groupby(data, :frame)
-  realvideo = map(Scene, frames)
-  video = ciid(ω -> video_(ω, realvideo, nframes, render))
-  latentvideo = ciid(ω -> video_(ω, realvideo, nframes))
-  rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=n);
-  samples = rand(latentvideo, video == realvideo, SSMH, n=1000);
-  evalposterior(samples, realvideo, false, true)
-  samples
-end
-
-"Frame by frame differences"
-function Δs(video)
-  Δs = Float64[]
-  for i = 1:length(video) - 1
-    v1 = video[i]
-    v2 = video[i + 1]
-    push!(Δs,  Δ(v1, v2))
-  end
-  Δs
-end
+  Scene.(frames)
 end
