@@ -82,10 +82,9 @@ end
 
 #nboxes = poisson(3) + 1
 #nboxes = poisson(1) + 3
-nboxes = 3
-#nboxes(ω)
+const nboxes = 3
 
-"Scene at frame t=0"
+"Scene at frame t = 0"
 function initscene(ω, data)
   objects = map(1:nboxes) do i
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
@@ -105,7 +104,6 @@ function initscene(ω, data)
   @assert length(objects) == 3
   Scene(objects, camera)
 end
-
 
 "Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
 function move(ω, object::Object)
@@ -194,20 +192,8 @@ end
 Δ(a::AbstractObject, b::AbstractObject) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
 Δ(a::Scene, b::Scene) = surjection(a.objects, b.objects)
-
-function Omega.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
-  dists = Δ.(a, b)
-  d = mean(dists)
-  e = 1 - Omega.kse(d, 0.08)
-  eps = 1e-6
-  Omega.SoftBool(e + eps)
-end
-
-## Run
-# datapath = joinpath(datadir(), "TwoBalls", "TwoBalls_DetectedObjects.csv")
-# datapath = joinpath(datadir(), "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
-# datapath = joinpath(datadir(), "TwoBalls", "TwoBalls_DetectedObjects.csv")
-# datapath = joinpath(datadir(), "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
+Omega.d(a::AbstractObject, b::AbstractObject) = Δ(a, b)
+Omega.d(a::Scene, b::Scene) = Δ(a, b)
 
 "From the data set, construct a video: a sequence of frames"
 function genrealvideo(data)

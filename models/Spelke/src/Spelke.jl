@@ -7,8 +7,9 @@ using DataFrames
 using ArgParse
 using PDMats
 using Statistics: std
+import Omega: d
 
-export train, viz, draw
+export train, viz, draw, exampledata
 
 datadir() = joinpath(@__DIR__, "..", "data")
 
