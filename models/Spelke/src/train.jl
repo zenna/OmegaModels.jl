@@ -10,8 +10,8 @@ function train(data::DataFrame, n = 1000, alg = SSMH, kwargs...)
   realvideo = genrealvideo(data)
   video, latentvideo = priors(realvideo)
   samples = rand(video, video ==ₛ realvideo, n; alg = alg, kwargs...)
-  # samples = rand(latentvideo, video ==ₛ realvideo, 1000; alg = alg, kwargs...)
-  # evalposterior(samples, realvideo, false, true)
+  samples = rand(latentvideo, video ==ₛ realvideo, 1000; alg = alg, kwargs...)
+  evalposterior(samples, realvideo, false, true)
   samples
 end
 

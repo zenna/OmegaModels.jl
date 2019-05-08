@@ -1,5 +1,6 @@
 module Spelke
 using Omega
+import Omega
 using UnicodePlots
 using CSV
 using DataFrames
@@ -7,7 +8,6 @@ using DataFrames
 using ArgParse
 using PDMats
 using Statistics: std
-import Omega: d
 
 export train, viz, draw, exampledata
 
