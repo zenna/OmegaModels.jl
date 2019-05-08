@@ -16,8 +16,8 @@ struct Object{T} <: AbstractObject
   y::T
   Δx::T
   Δy::T
-  vx::T
-  vy::T
+  vx::T  # x velocity
+  vy::T  # y velocity
   d::T
 end
 
@@ -39,24 +39,26 @@ struct Image{O}
   objects::Vector{O}
 end
 
-"Render scene into an image"
-render(scene, camera) = scene
+# "Render scene into an image"
+# render(scene, camera) = scene
 
+"Compute area that a blocks in b"
 function blockedarea(a, b)
-  # Compute area that a blocks in b
   # if a is farther away, it cannot block it.
   if (a.d >= b.d)
     return 0
+  else
+    # Otherwise compute intersecting rectangle.
+    interwidth = min(a.x + a.Δx, b.x + b.Δx) - max(a.x, b.x)
+    interheight = min(a.y, b.y) - max(a.y + a.Δy, b.y + b.Δy)
+    @show interarea = interwidth * interheight
+    barea = b.Δx * b.Δy
+    @show barea
+    interarea / barea
   end
-  # Otherwise compute intersecting rectangle.
-  interwidth = minimum([a.x + a.Δx, b.x + b.Δx]) - maximum([a.x, b.x])
-  interheight = minimum([a.y, b.y]) - maximum([a.y + a.Δy, b.y + b.Δy])
-  interarea = interwidth * interheight
-  barea = b.Δx * b.Δy
-  return interarea/barea
 end
 
-function render(scene)
+function render(ω, scene)
   # Better rendering function that computes overlap, and
   # returns probability proportional to percentage of overlap.
   # But should be changed to be a learned thing.
@@ -64,11 +66,12 @@ function render(scene)
   # print(blockmatrix)
   objectids = Int[]
   for objid = 1:length(scene.objects)
-    if rand() >= sum(blockmatrix[:, objid])
+    if @show rand(ω[objid]) >= @show(sum(blockmatrix[:, objid]))
       append!(objectids, objid)
     end
   end
   objects = [scene.objects[id] for id in objectids]
+  @show length(objects)
   return Scene(objects, scene.camera)
 end
 
@@ -78,6 +81,22 @@ function accumprop(prop, video)
     push!(props, getfield(object, prop))
   end
   props
+end
+
+"Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
+function move(ω, object::Object)
+  Object(object.x + object.vx,
+         object.y + object.vy,
+         object.Δx,
+         object.Δy,
+         object.vx,
+         object.vy,
+         object.d)
+end
+
+"Move entire all objects in scene"
+function move(ω, scene::Scene)
+  Scene(map(iobj -> move(ω[iobj[1]], iobj[2]), enumerate(scene.objects)), scene.camera)
 end
 
 #nboxes = poisson(3) + 1
@@ -103,22 +122,6 @@ function initscene(ω, data)
                   480.0)
   @assert length(objects) == 3
   Scene(objects, camera)
-end
-
-"Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
-function move(ω, object::Object)
-  Object(object.x + object.vx,
-         object.y + object.vy,
-         object.Δx,
-         object.Δy,
-         object.vx,
-         object.vy,
-         object.d)
-end
-
-"Move entire all objects in scene"
-function move(ω, scene::Scene)
-  Scene(map(iobj -> move(ω[iobj[1]], iobj[2]), enumerate(scene.objects)), scene.camera)
 end
 
 "Simulate `nsteps` starting at `scene`"
@@ -200,3 +203,12 @@ function genrealvideo(data)
   frames = groupby(data, :frame)
   Scene.(frames)
 end
+
+"Constructs data-dependent priors"
+function priors(realvideo)
+  video = ciid(ω -> video_(ω, realvideo, length(realvideo), scene -> render(ω, scene)))
+  latentvideo = ciid(ω -> video_(ω, realvideo, length(realvideo)))
+  (video = video, latentvideo = latentvideo) 
+end
+
+# priors(datapath::String = joinpath(datadir(), "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")) = priors(genrealvideo(CSV.read(datapath)))
