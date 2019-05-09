@@ -63,7 +63,7 @@ end
 function createcolors(αs)
   PlotUtils.clibrary(:cmocean)
   C(g::ColorGradient) = RGB[g[z] for z=range(0,stop=1,length=length(αs)+1)]
-  (cgrad(:grays_r) |> C)[2:end]
+  (cgrad(:amp) |> C)[2:end]
 end
 
 function main(; kwargs...)
