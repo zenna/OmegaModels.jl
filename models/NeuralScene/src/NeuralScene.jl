@@ -12,6 +12,8 @@ using LinearAlgebra: norm
 using RayTrace: Ray, Scene, sceneintersect, trcdepth
 using GeometryTypes
 
+Zygote.@nograd CartesianIndices
+
 # TODO
 # Implement linearsize
 # Get params
