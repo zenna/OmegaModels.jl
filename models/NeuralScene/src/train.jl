@@ -29,4 +29,6 @@ function zyg_update!(opt, model::AbstractArray, updates::AbstractArray)
     return model .-= updates
 end
 
+zyg_update!(opt, model::AbstractArray, updates::Tuple) = zyg_update!(opt, model, [updates...])
+
 end
