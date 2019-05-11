@@ -21,8 +21,8 @@ function sample(αs; kwargs...)
 end
 
 function subplot(samples, α, c, plt = plot())
-  αname = @sprintf("%.2f", 1/α)
-  StatsPlots.density!(samples, label = "\\alpha = $(αname)",
+  αname = @sprintf("\\alpha = 10^%d", trunc(Int, -log10(α)))
+  StatsPlots.density!(samples, label = αname, # "\\alpha = $(αname)",
                     #  m=(0.001,:auto),
                      c = c,
                      legend=:topleft,
@@ -63,7 +63,7 @@ end
 function createcolors(αs)
   PlotUtils.clibrary(:cmocean)
   C(g::ColorGradient) = RGB[g[z] for z=range(0,stop=1,length=length(αs)+1)]
-  (cgrad(:grays_r) |> C)[2:end]
+  (cgrad(:amp) |> C)[2:end]
 end
 
 function main(; kwargs...)
