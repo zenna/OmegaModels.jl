@@ -26,14 +26,14 @@ function subplot(samples, α, c, plt = plot())
                     #  m=(0.001,:auto),
                      c = c,
                      legend=:topleft,
-                     top_margin=6mm,
+                    #  top_margin=6mm,
                      style = :solid,
                     #  alpha=0.75,
                     #  fill=(0,),
                      w = 9,
-                     titlefontsize=18,
-                     legendfontsize=16,
-                     tickfontsize=12)
+                     titlefontsize=24,
+                     legendfontsize=22,
+                     tickfontsize=20)
 end
 
 function subplot_fill(samples, α, c, plt = plot())
@@ -45,16 +45,18 @@ function subplot_fill(samples, α, c, plt = plot())
                      alpha=0.75,
                      fill=(0,),
                      w = .1,
-                     titlefontsize=18,
-                     legendfontsize=16,
-                     tickfontsize=12)
+                     titlefontsize=27,
+                     legendfontsize=24,
+                     tickfontsize=18)
 end
 
 function plotdist(αs, samples, colors, save = false)
-  plt = plot(title = "Truncated Normal through Conditioning");
+  # plt = plot(title = "Truncated Normal through\n Conditioning");
+  plt = plot()
   # alternative color map
   # colors = ["#ff7f00", "#984ea3", "#4daf4a", "#377eb8"]
   foreach((α, s, c) ->  subplot(s, α, c, plt), αs, samples, colors)
+  yticks!(plt, [0.0, 0.5, 1.0])
   save
   savefig(plt, joinpath(ENV["DATADIR"], "mu", "figures", "truncatedistd.pdf"))
   plt
