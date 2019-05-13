@@ -1,34 +1,47 @@
 module Train
 export zyg_update!
 using Flux
+using Zygote
+using ..Distances
+using ..GenData
+using Lens
+using Parameters
+using RayTrace: sceneintersect, Ray, renderfunc
 
-# Recursive zygote update method, this is the general recursion case:
-function zyg_update!(opt, model, updates)
-	# If this `model` node has no fields, then just return it
-    if nfields(model) == 0
-        return model
+include("zygupdate.jl")
+
+struct TrainLoop end
+struct BatchLoop end
+
+function train(; render_params,
+                 deepscene,
+                 net,
+                 opt = ADAM(0.001),
+                 niterations = 100,
+                 imagesperbatch = 5,
+                 datarv = gendata(; render_params = render_params))
+  netparams = vcat(map(x->[x.W, x.b], net.layers)...)
+  params_ = [deepscene.ir, netparams...]
+  for i = 1:niterations
+    grads = gradient(Params(params_)) do
+      losses = 0f0  
+      for j = 1:imagesperbatch
+        @unpack rorig, img = rand(datarv)
+        neural_img = renderfunc(deepscene; rorig = rorig, render_params...)
+        loss = distance(neural_img, img)
+        @show loss
+        losses += loss  
+        # push!(losses, loss)
+        lens(BatchLoop, (loss = loss, neural_img = neural_img, i = i, j = j))
+      end
+      lens(TrainLoop, (loss = losses, i = i))
+      # sum(losses)
+      losses
     end
 
-	# If it does have fields, recurse into them:
-    for field_idx in 1:nfields(model)
-        zyg_update!(opt, getfield(model, field_idx), getfield(updates, field_idx))
-    end
-
-    # In the end, return the `model`
-    return model
+    grads_ = map(x -> grads[x], params_)
+    zyg_update!(opt, (params_...,), (grads_...,))
+  end
 end
-# If the `updates` is set to `Nothing`, then just return `model`; this means
-# that there were no changes to be applied to this piece of the model.
-zyg_update!(opt, model, updates::Nothing) = model
-
-# If `model` is an `AbstractArray` and `updates` is too, then apply our Flux
-# optimizer to the incoming gradients and apply them to the model!
-function zyg_update!(opt, model::AbstractArray, updates::AbstractArray)
-    # Sub off to Flux's ADAM optimizer
-    Flux.Optimise.apply!(opt, model, updates)
-    return model .-= updates
-end
-
-zyg_update!(opt, model::AbstractArray, updates::Tuple) = zyg_update!(opt, model, [updates...])
 
 end
