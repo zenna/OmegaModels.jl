@@ -1,0 +1,68 @@
+struct Patient
+  id::Int
+  insulin_type
+  weight
+end
+
+struct FingerStick{TS, VALUE}
+  ts::TS
+  value::VALUE
+end
+
+struct Basal{TS, VALUE}
+  ts::TS
+  value::VALUE
+end
+
+struct TempBasal{TSB, TSE, VALUE}
+  ts_begin::TSB
+  ts_end::TSE
+  value::VALUE
+end
+
+struct Bolus{TSB, TSE, TYPE, DOSE, BWZ}
+  ts_begin::TSB
+  ts_end::TSE
+  type::TYPE
+  dose::DOSE
+  bwz_carb_input::BWZ
+end
+
+struct Meal{TS, TYPE, CARBS}
+  ts::TS
+  type::TYPE
+  carbs::CARBS
+end
+
+struct Sleep{TSB, TSE, QUALITY}
+  ts_begin::TSB
+  ts_end::TSE
+  quality::QUALITY
+end
+
+struct Work{TSB, TSE, INTENSITY}
+  ts_begin::TSB
+  ts_end::TSE
+  intensity::INTENSITY
+end
+
+
+
+function Patient(p::Node)
+  @pre p.name == "patient"
+  id = parse(Int, p["id"])
+end
+
+
+
+function event(x::Node, T = Float64)
+  @pre x.name == "event"
+  (ts =  DateTime(x["ts"], dateformat"d-m-y H:M:S"),
+   value = parse(T, x["value"])) 
+end
+
+function glucoselevels(x::Node)
+  @pre p1.name == "glucose_level"
+  (glucose_level = map(event, elements(x),))
+end
+
