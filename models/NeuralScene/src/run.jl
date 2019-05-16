@@ -9,7 +9,7 @@ using GeometryTypes
 using RayTrace: Ray, sceneintersect, trcdepth
 using Omega
 import DSLearn
-using ..Train: train
+using ..Train: train, TrainLoop, BatchLoop
 
 # Goals:
 # Randomize length of inner vector
@@ -70,9 +70,36 @@ function paramsamples(nsamples = 10)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
+# Callbacks
+
+# function saveimg(img, path)
+#   backupsave()
+# end
+
+# function lmap()
+#   saveimgs = incsave(joinpath(joinpath(φ.logdir, "raytraced.jld2"))) ∘ (x -> x.neural_img)
+#   stopnanorinf
+#   # Show/save images every n iterations
+#   everyn
+# end
+
 function infer(φ)
   display(φ)
-  # Setup callbacks
+
+  # BatchLoop callbacks
+
+  # Save weights
+  # savew = savecb(joinpath(φ.logdir, "raytraced.jld2"); backup = true, verbose = true)  ∘ (x -> Dict("weights" => x.neural_img))
+
+  # Save image
+  simg = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
+
+  # TrainLoop Callbacks
+  sp = showprogress(φ.niterations)
+  sl = Callbacks.plotscalar() ∘ (x -> (x = x.i, y = x.loss))
+  x = 2
+  lmap = (BatchLoop => simg, TrainLoop => runall([sp, sl])) 
+
   render_params = (width = 100, height = 100, fov = 30.0, trc = trcdepth)
   deepscene = DeepScene(rand(φ.scenelen))
   inlen = linearlength(Vector{Float64}, (Ray{Point3, Point3}, deepscene))
@@ -83,7 +110,7 @@ function infer(φ)
   net_ = Flux.mapleaves(Flux.data, trackednet)
   net.net = net_
   # net_ = 
-  train(; net = net_,
+  @leval lmap train(; net = net_,
                       deepscene = deepscene,
                       opt = φ.opt(φ.η),
                       niterations = φ.niterations,
@@ -98,5 +125,9 @@ function testhyper()
 end
 
 main() = RunTools.control(infer, paramsamples())
+
+# function train()
+  
+# end
 
 end

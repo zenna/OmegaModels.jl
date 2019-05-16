@@ -50,7 +50,7 @@ Size of `x` linearized
 `linearsize(T, x) = size(linearize(T, x))`
 """
 function linearlength end
-linearlength(T, x) = @show length(linearize(T, x))
+# linearlength(T, x) = @show length(linearize(T, x))
 linearlength(T, x::Type{<:Real}) = 1
 linearlength(T, x::Real) = 1
 linearlength(T, x::Vector) = length(x)
@@ -62,7 +62,7 @@ linearlength(T, x::Vector) = length(x)
 linearlength(::Type{Vector{T}}, ::Type{TT}) where {T,  TT <: StaticArray} = length(TT)
 
 function linearlength(T, x)
-  fields(x)
+  nfields(x) == 0 && error("need more than 0 fields") 
   xs = map(x_ -> linearlength(T, x_), fields(x))
   sum(xs)
 end

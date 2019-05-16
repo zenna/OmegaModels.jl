@@ -76,8 +76,10 @@ uuid = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
 version = "0.5.2"
 
 [[Callbacks]]
-deps = ["Lens", "ProgressMeter", "UnicodePlots"]
-git-tree-sha1 = "22fc345f00cd8e13c0e12bdc2695553eda882d44"
+deps = ["FileIO", "Lens", "ProgressMeter", "UnicodePlots"]
+git-tree-sha1 = "0880a06f1a8d5334f411415a6ef09bd4a12b7262"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Callbacks.jl.git"
 uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
 version = "0.1.0"
 

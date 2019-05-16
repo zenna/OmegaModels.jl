@@ -10,7 +10,7 @@ using LinearAlgebra: norm
 using RayTrace: Ray, Scene, sceneintersect, trcdepth
 using GeometryTypes
 using Lens
-using ZenUtils
+# using ZenUtils
 
 export train, TrainLoop
 
