@@ -25,7 +25,7 @@ using .Model
 
 include("loss.jl")      # Loss
 
-include("interactive.jl") # Interactive plotting
+# include("interactive.jl") # Interactive plotting
 
 include("distances.jl")
 using .Distances
