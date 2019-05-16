@@ -98,7 +98,7 @@ function infer(φ)
   sp = showprogress(φ.niterations)
   sl = Callbacks.plotscalar() ∘ (x -> (x = x.i, y = x.loss))
   x = 2
-  lmap = (BatchLoop => simg, TrainLoop => runall([sp, sl])) 
+  lmap = (BatchLoop => everyn(simg, 50), TrainLoop => runall([sp, sl])) 
 
   render_params = (width = 100, height = 100, fov = 30.0, trc = trcdepth)
   deepscene = DeepScene(rand(φ.scenelen))
