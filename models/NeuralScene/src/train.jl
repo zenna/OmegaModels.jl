@@ -19,7 +19,8 @@ function train(; render_params,
                  opt = ADAM(0.001),
                  niterations = 100,
                  imagesperbatch = 5,
-                 datarv = gendata(; render_params = render_params))
+                 datarv = gendata(; render_params = render_params),
+                 normalize = identity)
   netparams = vcat(map(x->[x.W, x.b], net.layers)...)
   params_ = [deepscene.ir, netparams...]
   for i = 1:niterations
@@ -28,7 +29,7 @@ function train(; render_params,
       for j = 1:imagesperbatch
         @unpack rorig, img = rand(datarv)
         neural_img = renderfunc(deepscene; rorig = rorig, render_params...)
-        loss = distance(neural_img, img)
+        loss = distance(normalize(neural_img), normalize(img))
         @show loss
         losses += loss  
         # push!(losses, loss)

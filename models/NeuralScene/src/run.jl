@@ -11,15 +11,9 @@ using Omega
 import DSLearn
 using ..Train: train, TrainLoop, BatchLoop
 
-# Goals:
-# Randomize length of inner vector
-# Update net accordingly
-# Also randomize net parameters
-# Periodically render and save an image
+# TODO:
 # Periodically save parameter weights with backup
 # Make plot to tensorbard
-# How to update the net?
-# 
 
 mutable struct NetWrap
   net
@@ -35,11 +29,11 @@ function runparams()
   φ.loadnet = false
   φ.simname = "infer"
   φ.name = "neuralscene"
-  φ.runname = randrunname()
+  φ.runname = ciid(randrunname)
   φ.tags = ["test", "neuralscene"]
   φ.logdir = logdir(runname = φ.runname, tags = φ.tags)
-  φ.runfile = joinpath(dirname(@__FILE__), "runscript.jl")
-  # φ.gitinfo = RunTools.gitinfo()
+  φ.runfile = joinpath(dirname(@__FILE__), "..", "scripts", "runscript.jl")
+  φ.gitinfo = current_commit(@__FILE__)
   φ
 end
 
@@ -55,59 +49,55 @@ end
 
 "All parameters"
 function allparams()
-  φ = Params()
-  φ.scenelen = uniform(10:100)
-  φ.niterations = uniform([1000, 2000, 5000, 10000, 50000])
-  φ.imagesperbatch = uniform(1:10)
+  φ = Params(scenelen = uniform(10:100),
+             width = 100,
+             height = 100,
+             niterations = uniform([1000, 2000, 5000, 10000, 50000]),
+             normalizeimgs = bernoulli(0.5, Bool),
+             imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
 end
 
-# Callbacks
-
-# function saveimg(img, path)
-#   backupsave()
-# end
-
-# function lmap()
-#   saveimgs = incsave(joinpath(joinpath(φ.logdir, "raytraced.jld2"))) ∘ (x -> x.neural_img)
-#   stopnanorinf
-#   # Show/save images every n iterations
-#   everyn
-# end
-
-function infer(φ)
-  display(φ)
-
-  # BatchLoop callbacks
-
-  # Save weights
-  # savew = savecb(joinpath(φ.logdir, "raytraced.jld2"); backup = true, verbose = true)  ∘ (x -> Dict("weights" => x.neural_img))
-
-  # Save image
+"Generate a Lens map"
+function genlmap(φ)
   simg = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
-
-  # TrainLoop Callbacks
   sp = showprogress(φ.niterations)
   sl = Callbacks.plotscalar() ∘ (x -> (x = x.i, y = x.loss))
-  x = 2
   lmap = (BatchLoop => everyn(simg, 50), TrainLoop => runall([sp, sl])) 
+end
 
-  render_params = (width = 100, height = 100, fov = 30.0, trc = trcdepth)
-  deepscene = DeepScene(rand(φ.scenelen))
+"Generate the network from parameter values"
+function gennet(φ, deepscene)
   inlen = linearlength(Vector{Float64}, (Ray{Point3, Point3}, deepscene))
   midlen = φ.midlen
   outlen = 1
   trackednet = Flux.Chain(Flux.Dense(inlen, midlen),
                           Flux.Dense(midlen, outlen))
-  net_ = Flux.mapleaves(Flux.data, trackednet)
-  net.net = net_
-  # net_ = 
+  Flux.mapleaves(Flux.data, trackednet)
+end
+
+function infer(φ)
+  display(φ)
+
+  # Setup scene
+  normalize = φ.normalizeimgs ? identity : x -> x ./ sum(x)
+  deepscene = DeepScene(rand(φ.scenelen))
+
+  # Network
+  net_ = gennet(φ, deepscene)
+  net.net = net_  # Set's the global net
+
+  # TrainLoop Callbacks
+  lmap = genlmap(φ)
+  
+  render_params = (width = φ.width, height = φ.height, fov = 30.0, trc = trcdepth)
   @leval lmap train(; net = net_,
                       deepscene = deepscene,
                       opt = φ.opt(φ.η),
                       niterations = φ.niterations,
                       imagesperbatch = φ.imagesperbatch,
-                      render_params = render_params)
+                      render_params = render_params,
+                      normalize = normalize)
 end
 
 function testhyper()
@@ -115,7 +105,5 @@ function testhyper()
   mkpath(p.logdir)
   infer(p)
 end
-
-
 
 end
