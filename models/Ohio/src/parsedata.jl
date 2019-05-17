@@ -1,80 +1,18 @@
 module ParseData
-using ExXML: Node, readxml
+using EzXML: Node, readxml, attributes, elements
+using Dates
 using Spec
+import ..Ohio
 
+const OHIODIR = joinpath(dirname(pathof(Ohio)), "..")
+const DATADIR = joinpath(OHIODIR, "data")
+const FIGURESDIR = joinpath(OHIODIR, "figures")
 
-struct Patient
-  id::Int
-  insulin_type
-  weight
-end
-
-struct FingerStick{TS, VALUE}
-  ts::TS
-  value::VALUE
-end
-
-struct Basal{TS, VALUE}
-  ts::TS
-  value::VALUE
-end
-
-struct TempBasal{TSB, TSE, VALUE}
-  ts_begin::TSB
-  ts_end::TSE
-  value::VALUE
-end
-
-struct Bolus{TSB, TSE, TYPE, DOSE, BWZ}
-  ts_begin::TSB
-  ts_end::TSE
-  type::TYPE
-  dose::DOSE
-  bwz_carb_input::BWZ
-end
-
-struct Meal{TS, TYPE, CARBS}
-  ts::TS
-  type::TYPE
-  carbs::CARBS
-end
-
-struct Sleep{TSB, TSE, QUALITY}
-  ts_begin::TSB
-  ts_end::TSE
-  quality::QUALITY
-end
-
-struct Work{TSB, TSE, INTENSITY}
-  ts_begin::TSB
-  ts_end::TSE
-  intensity::INTENSITY
-end
-
-
-
-function Patient(p::Node)
-  @pre p.name == "patient"
-  id = parse(Int, p["id"])
-end
-
-
-
-function event(x::Node, T = Float64)
-  @pre x.name == "event"
-  (ts =  DateTime(x["ts"], dateformat"d-m-y H:M:S"),
-   value = parse(T, x["value"])) 
-end
-
-function glucoselevels(x::Node)
-  @pre p1.name == "glucose_level"
-  (glucose_level = map(event, elements(x),))
-end
-
-function smlly
+export parseohio, expatient, glucoselevels, carblevels
 
 nm(x) = Symbol(x.name)
 
+"Parse the content of an attribute, depending on its name"
 function parseattr(attr::Node)
   key, val = attr.name, attr.content 
   if key == "id"
@@ -112,20 +50,38 @@ function parseattr(attr::Node)
   end
 end
 
-function smelly(x::Node)
+"Parse XML to NamedTuple"
+function parseohio(x::Node)
   nms = map(nm, attributes(x))
+  nm_ = nm(x)
   attrs = map(parseattr, attributes(x))
   elements_ = elements(x)
   if isempty(elements_)
-    NamedTuple{(nms...,)}((attrs...,))
+    NamedTuple{(:nm, nms...,)}((nm_, attrs...,))
   else
-    vals = map(smelly, elements_)
-    NamedTuple{(nms..., :vals)}((attrs..., vals))
+    vals = map(parseohio, elements_)
+    NamedTuple{(:nm, nms..., :vals)}((nm_, attrs..., vals))
   end
 end
 
-function test(;fn = "588-ws-training.xml")
+
+"Extract a sequence of float data from raw values"
+function glucoselevels(patientdata)
+  glucosedata = patientdata.vals[1].vals
+  glucosey =  (x -> x.value).(glucosedata)
+end
+
+"Extract a sequence of float data from raw values"
+function carblevels(patientdata)
+  carbdata = patientdata.vals[6].vals
+  carby =  (x -> x.carbs).(carbdata)
+end
+
+
+"Example data from patient"
+function expatient(; fn = joinpath(DATADIR, "train", "588-ws-training.xml"))
   doc = readxml(fn)
+  parseohio(doc.root)
 end
 
 end
