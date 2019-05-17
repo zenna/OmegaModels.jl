@@ -33,11 +33,12 @@ function runparams()
   φ = Params()
   φ.train = true
   φ.loadnet = false
+  φ.simname = "infer"
   φ.name = "neuralscene"
   φ.runname = randrunname()
   φ.tags = ["test", "neuralscene"]
   φ.logdir = logdir(runname = φ.runname, tags = φ.tags)
-  φ.runfile = @__FILE__
+  φ.runfile = joinpath(dirname(@__FILE__), "runscript.jl")
   # φ.gitinfo = RunTools.gitinfo()
   φ
 end
@@ -49,7 +50,7 @@ function optparams()
 end
 
 function netparams()
-  Params((midlen = uniform(40:60),))
+  Params(midlen = uniform(40:60))
 end
 
 "All parameters"
@@ -59,15 +60,6 @@ function allparams()
   φ.niterations = uniform([1000, 2000, 5000, 10000, 50000])
   φ.imagesperbatch = uniform(1:10)
   merge(φ, runparams(), optparams(), netparams())
-end
-
-"Parameters we wish to enumerate"
-function enumparams()
-  [Params()]
-end
-
-function paramsamples(nsamples = 10)
-  (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
 # Callbacks
@@ -119,15 +111,11 @@ function infer(φ)
 end
 
 function testhyper()
-  p = first(paramsamples())
+  p = rand(allparams())
   mkpath(p.logdir)
   infer(p)
 end
 
-main() = RunTools.control(infer, paramsamples())
 
-# function train()
-  
-# end
 
 end
