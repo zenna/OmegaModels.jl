@@ -3,4 +3,6 @@ using NeuralScene
 using NeuralScene.Run: infer, allparams
 
 # Run
-control(infer, rand(allparams(), 10))
+paramsamples = rand(allparams(), 10)
+display.(paramsamples)
+control(infer, paramsamples)

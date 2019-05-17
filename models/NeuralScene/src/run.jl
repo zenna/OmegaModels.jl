@@ -31,7 +31,7 @@ function runparams()
   φ.name = "neuralscene"
   φ.runname = ciid(randrunname)
   φ.tags = ["test", "neuralscene"]
-  φ.logdir = logdir(runname = φ.runname, tags = φ.tags)
+  φ.logdir = ciid(ω -> logdir(runname = φ.runname(ω), tags = φ.tags))
   φ.runfile = joinpath(dirname(@__FILE__), "..", "scripts", "runscript.jl")
   φ.gitinfo = current_commit(@__FILE__)
   φ
