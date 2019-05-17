@@ -86,7 +86,7 @@ function train(; opt = ADAM(0.001))
     preddata = predict_n_ode()
     # @show size(data)
     # @show size(preddata)
-    plot([data; Tracker.data(preddata)], size = (2000, 300))
+    display(plot([data; Tracker.data(preddata)], size = (2000, 300)))
   end
   # Show progress
   sp = showprogress(length(datait))
