@@ -60,8 +60,7 @@ n_ode(x) = neural_ode(dudt, x, tspan, Tsit5(), saveat = t, reltol = 1e-7, abstol
 # u0 = Float32[2.; 0.]
 # Training
 
-function train(; opt = ADAM(0.001))
-  datait = Iterators.repeated((), 1000)
+function train(; opt = ADAM(0.0005), datait = Iterators.repeated((), 10000))
   # cb = function () # callback function to observe training
   #   display(loss_n_ode())
   #   # plot current prediction against data
@@ -86,7 +85,7 @@ function train(; opt = ADAM(0.001))
     preddata = predict_n_ode()
     # @show size(data)
     # @show size(preddata)
-    display(plot([data; Tracker.data(preddata)], size = (2000, 300)))
+    display(plot([data; Tracker.data(preddata)]', size = (2000, 300)))
   end
   # Show progress
   sp = showprogress(length(datait))
