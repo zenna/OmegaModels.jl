@@ -82,9 +82,11 @@ function train(; opt = ADAM(0.001))
   # Callbacks
 
   # Show predictions
-  function plotpred(data)
+  function plotpred(data_)
     preddata = predict_n_ode()
-    plot([data Tracker.data(preddata)], size = (2000, 300))
+    # @show size(data)
+    # @show size(preddata)
+    plot([data; Tracker.data(preddata)], size = (2000, 300))
   end
   # Show progress
   sp = showprogress(length(datait))
