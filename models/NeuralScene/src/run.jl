@@ -54,8 +54,8 @@ function allparams()
   φ = Params(scenelen = uniform(10:100),
              width = 100,
              height = 100,
-            #  niterations = uniform([1000, 2000, 5000, 10000, 50000]),
-             niterations = 20,
+             niterations = uniform([1000, 2000, 5000, 10000, 50000]),
+            #  niterations = 20,
              normalizeimgs = bernoulli(0.5, Bool),
              imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
@@ -68,17 +68,17 @@ function genlmap(φ)
                     save = BSON.bson) ∘ (x -> Dict(:net => x.net, :deepscene => x.deepscene))
   
   # Plot image
-  simg = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
+  simg_ = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
+  simg = everyn(simg_, 50)
 
   # UnicodePlot Nueral Scene
-  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img),
-                     div(φ.niterations * φ.imagesperbatch, 100) + 1)
+  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img), 10)
 
   # Stopping
   stop = stopnanorinf ∘ (x -> x.loss)
 
   # Stop when converged
-  stopconv = everyn(stopconverged(; verbose = true) ∘ (x -> (x.i, x.loss)), div(φ.niterations, 10) + 1)
+  stopconv = everyn(stopconverged(; verbose = true) ∘ (x -> (x.i, x.loss)), 50)
 
   # Show Progress
   sp = showprogress(φ.niterations)
@@ -87,7 +87,7 @@ function genlmap(φ)
   sl = Callbacks.plotscalar(; width = 100, height = 30) ∘ (x -> (x = x.i, y = x.loss))
 
   # The lensmap
-  lmap = (BatchLoop => runall(everyn(simg, 50), stop, plotscene),
+  lmap = (BatchLoop => runall(simg, stop, plotscene),
           TrainLoop => runall(sp, sl, everyn(savenet, div(φ.niterations, 10)), stopconv))
 end
 
