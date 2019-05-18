@@ -4,6 +4,7 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
 DSLearn = "3b80dbfc-8db2-11e8-22e5-79da9c3bc97d"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
@@ -15,4 +16,5 @@ Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 RayTrace = "9441d024-97fe-11e8-2154-4d1b79854d30"
 RunTools = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"

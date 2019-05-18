@@ -4,12 +4,14 @@ using RunTools
 using Lens, Callbacks
 using Flux
 using ..Model: DeepScene
+using ..Viz: unicodeplotmat
 using ..Linearize
 using GeometryTypes
 using RayTrace: Ray, sceneintersect, trcdepth
 using Omega
 import DSLearn
 using ..Train: train, TrainLoop, BatchLoop
+using BSON
 
 # TODO:
 # Periodically save parameter weights with backup
@@ -52,7 +54,8 @@ function allparams()
   φ = Params(scenelen = uniform(10:100),
              width = 100,
              height = 100,
-             niterations = uniform([1000, 2000, 5000, 10000, 50000]),
+            #  niterations = uniform([1000, 2000, 5000, 10000, 50000]),
+             niterations = 20,
              normalizeimgs = bernoulli(0.5, Bool),
              imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
@@ -60,10 +63,32 @@ end
 
 "Generate a Lens map"
 function genlmap(φ)
+  # save network opt scene
+  savenet = incsave(joinpath(φ.logdir, "net.bson"); verbose = true,
+                    save = BSON.bson) ∘ (x -> Dict(:net => x.net, :deepscene => x.deepscene))
+  
+  # Plot image
   simg = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
+
+  # UnicodePlot Nueral Scene
+  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img),
+                     div(φ.niterations * φ.imagesperbatch, 100) + 1)
+
+  # Stopping
+  stop = stopnanorinf ∘ (x -> x.loss)
+
+  # Stop when converged
+  stopconv = everyn(stopconverged(; verbose = true) ∘ (x -> (x.i, x.loss)), div(φ.niterations, 10) + 1)
+
+  # Show Progress
   sp = showprogress(φ.niterations)
-  sl = Callbacks.plotscalar() ∘ (x -> (x = x.i, y = x.loss))
-  lmap = (BatchLoop => everyn(simg, 50), TrainLoop => runall([sp, sl])) 
+
+  # Plos los
+  sl = Callbacks.plotscalar(; width = 100, height = 30) ∘ (x -> (x = x.i, y = x.loss))
+
+  # The lensmap
+  lmap = (BatchLoop => runall(everyn(simg, 50), stop, plotscene),
+          TrainLoop => runall(sp, sl, everyn(savenet, div(φ.niterations, 10)), stopconv))
 end
 
 "Generate the network from parameter values"

@@ -27,6 +27,9 @@ include("loss.jl")      # Loss
 
 # include("interactive.jl") # Interactive plotting
 
+include("viz.jl")
+using .Viz
+
 include("distances.jl")
 using .Distances
 

@@ -77,7 +77,7 @@ version = "0.5.2"
 
 [[Callbacks]]
 deps = ["FileIO", "Lens", "ProgressMeter", "UnicodePlots"]
-git-tree-sha1 = "0880a06f1a8d5334f411415a6ef09bd4a12b7262"
+git-tree-sha1 = "b2165ced8795ebf3c7c0ae4d0fa9d24799bea390"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Callbacks.jl.git"
 uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
@@ -177,9 +177,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
 deps = ["LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "56a158bc0abe4af5d4027af2275fde484261ca6d"
+git-tree-sha1 = "4ae0ff1a3a556383f7b1b004f5fb964b26ac96c9"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.19.2"
+version = "0.20.0"
 
 [[DocStringExtensions]]
 deps = ["LibGit2", "Markdown", "Pkg", "Test"]
@@ -391,10 +391,10 @@ uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "0.9.0"
 
 [[QuadGK]]
-deps = ["DataStructures", "LinearAlgebra", "Test"]
-git-tree-sha1 = "3ce467a8e76c6030d4c3786e7d3a73442017cdc0"
+deps = ["DataStructures", "LinearAlgebra"]
+git-tree-sha1 = "389fd27b958a33df5234772cc464b663b208273d"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.0.3"
+version = "2.0.4"
 
 [[REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets"]
@@ -432,7 +432,7 @@ version = "0.5.0"
 
 [[RunTools]]
 deps = ["ArgParse", "BSON", "Callbacks", "DataFrames", "Dates", "FileIO", "IterTools", "JLD2", "Lens", "Omega", "ProgressMeter", "Random", "Spec"]
-git-tree-sha1 = "e534fa6981281210eec26fddf315d9ddbea5896c"
+git-tree-sha1 = "d6bab5212bb76c86438db6fe97e26e6e2726475d"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/RunTools.jl"
 uuid = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
@@ -507,9 +507,9 @@ version = "1.0.0"
 
 [[Tables]]
 deps = ["IteratorInterfaceExtensions", "LinearAlgebra", "Requires", "TableTraits", "Test"]
-git-tree-sha1 = "5ab16d650736b21449731fa712bbdae60b3a7ab1"
+git-tree-sha1 = "83b4a0261e5d01274f12b35d4c2212386fb15569"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "0.2.2"
+version = "0.2.3"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
@@ -535,9 +535,9 @@ version = "0.5.3"
 
 [[Tracker]]
 deps = ["Adapt", "DiffRules", "ForwardDiff", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Requires", "SpecialFunctions", "Statistics", "Test"]
-git-tree-sha1 = "635c47e3afc470c5cc58021fe489d663ef3182ed"
+git-tree-sha1 = "327342fec6e09f68ced0c2dc5731ed475e4b696b"
 uuid = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
-version = "0.2.1"
+version = "0.2.2"
 
 [[TranscodingStreams]]
 deps = ["Random", "Test"]
@@ -578,7 +578,7 @@ version = "0.8.1"
 
 [[Zygote]]
 deps = ["DiffRules", "ForwardDiff", "IRTools", "InteractiveUtils", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics"]
-git-tree-sha1 = "c4e1ea332efc5baee0c8255d7447daa9d63a7bc1"
+git-tree-sha1 = "685341cbb01a3b303c8ba6429b29d4c7879f3d07"
 repo-rev = "master"
 repo-url = "https://github.com/FluxML/Zygote.jl.git"
 uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
