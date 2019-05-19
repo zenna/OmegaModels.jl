@@ -12,7 +12,7 @@ end
 Zygote.@adjoint function Vec3(a, b, c)
   fx = Vec3(a, b, c)
   function pb(Δ::Real)
-    @show typeof(x)
+    # @show typeof(x)
     Vec3(Δ.x, Δ.y, Δ.z)
   end
 

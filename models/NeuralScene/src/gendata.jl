@@ -8,7 +8,7 @@ using GeometryTypes
 export ex_data, gendata, datarv
 
 function datarv(ω, scene, render_params)
-  rorig = Vec3(uniform(ω, 0, 1), uniform(ω, 0, 1), uniform(ω, 0, 1))
+  rorig = Vec3(uniform(ω, -5, 5), uniform(ω, -5, 5), uniform(ω, -5, 5))
   img = RayTrace.renderfunc(scene; rorig = rorig, render_params...)
   (rorig = rorig, img = img)
 end
