@@ -12,6 +12,8 @@ using Omega
 import DSLearn
 using ..Train: train, TrainLoop, BatchLoop
 using BSON
+using TensorBoardLogger
+using Logging
 
 # TODO:
 # Periodically save parameter weights with backup
@@ -46,7 +48,8 @@ function optparams()
 end
 
 function netparams()
-  Params(midlen = uniform(40:60))
+  Params(midlen = uniform(40:60),
+         activation = uniform([relu, elu, selu]))
 end
 
 "All parameters"
@@ -55,7 +58,7 @@ function allparams()
              width = 100,
              height = 100,
              niterations = uniform([1000, 2000, 5000, 10000, 50000]),
-            #  niterations = 20,
+            #  niterations = 10,
              normalizeimgs = bernoulli(0.5, Bool),
              imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
@@ -63,16 +66,29 @@ end
 
 "Generate a Lens map"
 function genlmap(φ)
-  # save network opt scene
-  savenet = incsave(joinpath(φ.logdir, "net.bson"); verbose = true,
-                    save = BSON.bson) ∘ (x -> Dict(:net => x.net, :deepscene => x.deepscene))
-  
-  # Plot image
-  simg_ = incsave(joinpath(φ.logdir, "raytraced.jld2"); verbose = true) ∘ (x -> Dict("x" => x.neural_img))
-  simg = everyn(simg_, 50)
+  # Tensorboard
+  str = linearstring(φ, :runname, :midlen, :niterations, :scenelen, :normalizeimgs, :η, :opt, :imagesperbatch)
+  tblogger = TBLogger(φ.logdir, tb_append)
+  function tblogloss(data)
+    with_logger(tblogger) do
+      log_value(tblogger, "$str/loss", data.loss; step = data.i)
+    end
+  end
 
+  # TB log images
+  logimg_(data) = log_image(tblogger, "targetimg", data.neural_img, HW; step = data.i)
+  logdeepimg_(data) = log_image(tblogger, "deepimg", data.img, HW; step = data.i)
+  logimg = everyn(logimg_, 4 * φ.imagesperbatch)
+  logdeepimg = everyn(logdeepimg_, 4 * φ.imagesperbatch)
+  
+
+  # save network opt scene
+  savenet_ = incsave(joinpath(φ.logdir, "net.bson"); verbose = true,
+                    save = BSON.bson) ∘ (x -> Dict(:net => x.net, :deepscene => x.deepscene))
+  savenet = everyn(savenet_, 50)
+  
   # UnicodePlot Nueral Scene
-  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img), 10 * φ.imagesperbatch)
+  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img), 4 * φ.imagesperbatch)
 
   # Stopping
   stop = stopnanorinf ∘ (x -> x.loss)
@@ -87,8 +103,8 @@ function genlmap(φ)
   sl = Callbacks.plotscalar(; width = 100, height = 30) ∘ (x -> (x = x.i, y = x.loss))
 
   # The lensmap
-  lmap = (BatchLoop => runall(simg, stop, plotscene),
-          TrainLoop => runall(sp, sl, everyn(savenet, div(φ.niterations, 10)), stopconv))
+  lmap = (BatchLoop => runall(stop, plotscene, logimg, logdeepimg),
+          TrainLoop => runall(sp, sl, savenet, stopconv, tblogloss))
 end
 
 "Generate the network from parameter values"
@@ -96,8 +112,8 @@ function gennet(φ, deepscene)
   inlen = linearlength(Vector{Float64}, (Ray{Point3, Point3}, deepscene))
   midlen = φ.midlen
   outlen = 1
-  trackednet = Flux.Chain(Flux.Dense(inlen, midlen),
-                          Flux.Dense(midlen, outlen))
+  trackednet = Flux.Chain(Flux.Dense(inlen, midlen, φ.activation),
+                          Flux.Dense(midlen, outlen, φ.activation))
   Flux.mapleaves(Flux.data, trackednet)
 end
 
