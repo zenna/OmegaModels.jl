@@ -15,6 +15,7 @@ function samplemat(mat; maxsamples = 10, width = 50, height = 50)
   for idx in CartesianIndices(mat)
     val = mat[idx]
     intensity = val / rng
+    @assert 1.0 <= val <= 1.0 "$val / $rng"
     for i = 1:(intensity * maxsamples)
       push!(xs, idx[2])
       push!(ys, idx[1])
