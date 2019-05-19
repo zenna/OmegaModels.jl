@@ -68,10 +68,10 @@ end
 function genlmap(φ)
   # Tensorboard
   str = linearstring(φ, :runname, :midlen, :niterations, :scenelen, :normalizeimgs, :η, :opt, :imagesperbatch)
-  tblogger = TBLogger(φ.logdir, tb_append)
+  tblogger = TBLogger(φ.logdir, str)
   function tblogloss(data)
     with_logger(tblogger) do
-      log_value(tblogger, "$str/loss", data.loss; step = data.i)
+      log_value(tblogger, "loss", data.loss; step = data.i)
     end
   end
 
