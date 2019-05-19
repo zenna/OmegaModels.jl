@@ -32,7 +32,7 @@ function runparams()
   φ.simname = "infer"
   φ.name = "neuralscene"
   φ.runname = ciid(randrunname)
-  φ.tags = ["test", "neuralscene"]
+  φ.tags = ["neuralscene", "first"]
   φ.logdir = ciid(ω -> logdir(runname = φ.runname(ω), tags = φ.tags))
   φ.runfile = joinpath(dirname(@__FILE__), "..", "scripts", "runscript.jl")
   φ.gitinfo = current_commit(@__FILE__)
