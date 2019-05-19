@@ -4,7 +4,7 @@ using UnicodePlots
 
 export unicodeplotmat
 
-function samplemat(mat; multiply = 10, width = 50, height = 50)
+function samplemat(mat; maxsamples = 10, width = 50, height = 50)
   # For each element of matrix, add n samples in x y
   # at that position where 
   xs = Float64[]
@@ -14,8 +14,8 @@ function samplemat(mat; multiply = 10, width = 50, height = 50)
   rng = max_ - min_
   for idx in CartesianIndices(mat)
     val = mat[idx]
-    
-    for i = 1:(val / rng * multiply)
+    intensity = val / rng
+    for i = 1:(intensity * maxsamples)
       push!(xs, idx[2])
       push!(ys, idx[1])
     end
@@ -26,7 +26,7 @@ end
 
 "Plot a matrix using UnicodePlots"
 function unicodeplotmat(mat; width = 60, height = 30)
-  xs, ys = samplemat(mat; multiply = 1000)
+  xs, ys = samplemat(mat; maxsamples = 100)
   if !isempty(xs)
     display(UnicodePlots.densityplot(xs, ys; width = width, height = height))
   end

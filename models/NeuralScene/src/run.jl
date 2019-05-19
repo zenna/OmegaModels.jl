@@ -72,7 +72,7 @@ function genlmap(φ)
   simg = everyn(simg_, 50)
 
   # UnicodePlot Nueral Scene
-  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img), 10)
+  plotscene = everyn(unicodeplotmat ∘ (x -> x.neural_img), 10 * φ.imagesperbatch)
 
   # Stopping
   stop = stopnanorinf ∘ (x -> x.loss)
