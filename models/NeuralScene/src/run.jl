@@ -1,6 +1,7 @@
 "Run a bunch of simulations"
 module Run
 using RunTools
+import RayTrace
 using Lens, Callbacks
 using Flux
 using ..Model: DeepScene
@@ -14,6 +15,8 @@ using ..Train: train, TrainLoop, BatchLoop
 using BSON
 using TensorBoardLogger
 using Logging
+using ..GenData
+
 
 # TODO:
 # Periodically save parameter weights with backup
@@ -43,12 +46,13 @@ end
 
 "Optimization Parameters"
 function optparams()
-  Params((η = uniform([0.1, 0.01, 0.001, 0.0001]),
+  Params((η = uniform([0.01, 0.001, 0.0001]),
           opt = uniform([Descent, ADAM])))
 end
 
 function netparams()
   Params(midlen = uniform(40:60),
+         nhidden = uniform(0:8),
          activation = uniform([relu, elu, selu]))
 end
 
@@ -60,6 +64,7 @@ function allparams()
              niterations = uniform([1000, 2000, 5000, 10000, 50000]),
             #  niterations = 10,
              normalizeimgs = bernoulli(0.5, Bool),
+             addfloor = bernoulli(0.5, Bool),
              imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
 end
@@ -112,7 +117,9 @@ function gennet(φ, deepscene)
   inlen = linearlength(Vector{Float64}, (Ray{Point3, Point3}, deepscene))
   midlen = φ.midlen
   outlen = 1
+  hiddenlayers = [Dense(midlen, midlen, φ.activation) for i = 1:φ.nhidden]
   trackednet = Flux.Chain(Flux.Dense(inlen, midlen, φ.activation),
+                          hiddenlayers...,
                           Flux.Dense(midlen, outlen, φ.activation))
   Flux.mapleaves(Flux.data, trackednet)
 end
@@ -138,6 +145,8 @@ function infer(φ)
                       niterations = φ.niterations,
                       imagesperbatch = φ.imagesperbatch,
                       render_params = render_params,
+                      datarv = gendata(; scene = RayTrace.example_spheres(; addfloor = φ.addfloor),
+                                         render_params = render_params),
                       normalize = normalize)
 end
 
