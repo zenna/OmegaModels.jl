@@ -64,7 +64,7 @@ function allparams()
              niterations = uniform([1000, 2000, 5000, 10000, 50000]),
             #  niterations = 10,
              normalizeimgs = bernoulli(0.5, Bool),
-             addfloor = bernoulli(0.5, Bool),
+             addfloor = bernoulli(0.05, Bool),
              imagesperbatch = uniform(1:10))
   merge(φ, runparams(), optparams(), netparams())
 end

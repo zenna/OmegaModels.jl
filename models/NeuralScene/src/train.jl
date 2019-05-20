@@ -29,15 +29,17 @@ function train(; render_params,
       for j = 1:imagesperbatch
         @unpack rorig, img = rand(datarv)
         neural_img = renderfunc(deepscene; rorig = rorig, render_params...)
-        loss = distance(neural_img, normalize(img))
+        normimg = normalize(img)
+        loss = dist_ignorebg(neural_img, normimg; background = maximum(normimg))
         losses += loss 
         @show loss
         # push!(losses, loss)
         lens(BatchLoop, (loss = loss, img = img, neural_img = neural_img, i = i, j = j))
       end
-      lens(TrainLoop, (loss = losses, i = i, deepscene = deepscene, net = net, opt = opt))
+      meanloss = losses / imagesperbatch
+      lens(TrainLoop, (loss = meanloss, i = i, deepscene = deepscene, net = net, opt = opt))
       # sum(losses)
-      losses / imagesperbatch
+      meanloss
     end
 
     grads_ = map(x -> grads[x], params_)
