@@ -10,6 +10,7 @@ unicodeplots()
 include("fluxtrain.jl")
 export train!, TrainLoop
 
+
 "Generate Lens Map"
 function genlmap(; data, predict, niterations, dudt)
   function plotpred(data_)
@@ -30,16 +31,18 @@ function genlmap(; data, predict, niterations, dudt)
   TrainLoop => runall(sp, pl, everyn(plotpred, 10), savenet)
 end
 
-function train(; n_ode, dudt, data, opt = ADAM(0.0005), datait = Iterators.repeated((), 10000))
+function train(; n_ode, dudt, data, opt = ADAM(0.0005),
+                 niterations, accum)
+  datait = Iterators.repeated((), niterations)
   @show data
 
   u0 = data[:, 1] # Initialize where data starts
   predict_n_ode() = n_ode(u0)
   # loss_n_ode() = sum(abs2, data .- predict_n_ode()) / length(data)
-  loss_n_ode() = maximum(abs2, data .- predict_n_ode())
+  loss_n_ode() = accum(abs2, data .- predict_n_ode())
   ps = Flux.params(dudt)
   lmap = genlmap(; data = data, predict = predict_n_ode, dudt = dudt,
-                   niterations = length(datait))
+                   niterations = niterations)
 
   # Do training
   @leval lmap train!(loss_n_ode, ps, datait, opt)

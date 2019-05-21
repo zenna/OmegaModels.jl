@@ -9,4 +9,6 @@ using .Train
 include("neuralode.jl")
 using .NeuralODE
 
+export infer, allparams, testhyper
+
 end
