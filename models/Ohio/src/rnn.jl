@@ -12,7 +12,7 @@ m = Chain(
   LSTM(N, 128),
   LSTM(128, 128),
   Dense(128, N),
-  softmax)
+  elu)
 
 # m = gpu(m)
 
