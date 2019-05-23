@@ -32,7 +32,7 @@ function getdata(; FT = Float32, datasize = 100, ndim = 2)
   carbdata = [bigcarbdata[i] for i in Int.(floor.(range(1, length(bigcarbdata), length = datasize)))]
   normalize!(carbdata)
 
-  data = hcat(glucosedata, carbdata)'
+  data = collect(hcat(glucosedata, carbdata)')
 end
 # normalize!(data)
 
