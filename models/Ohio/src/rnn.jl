@@ -39,7 +39,7 @@ function trainrnn(; datasize = 10)
   data = getdata(; datasize = datasize)
   datait = Iterators.repeated((), 1000)
   function loss()    
-    l = sum(m(data) .- m(ones(size(data))))
+    l = sum(data .- m(ones(size(data))))
     Flux.truncate!(m)
     return l
   end
