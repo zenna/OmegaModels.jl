@@ -21,8 +21,9 @@ function simulate(ω, σ; nsteps = 20)
   xs  
 end
 
-# σ = invgammarv(1, 1)
-σ = uniform(0.0, 5.0)
+σ = invgammarv(1, 1)
+# σ = uniform(0.0, 5.0)
+# σ = constant(3.0)
 k = 2.0
 simrv = ciid(simulate, σ)
 lastsim = lift(last)(simrv)
@@ -48,11 +49,11 @@ diffmultiexpnoise = diffmultiexp + normal(0, 0.01, (nobs,))
 
 # Create fake data
 "Generate fake data where `σ` is `σc`"
-function genfakedata(; σc = 3.0)
-  fakedatasamples = rand(replace(diffmultiexp, σ => σc), 100)
-  fakedata = mean(fakedatasamples)
-end
+# function genfakedata(; σc = 3.0)
+#   fakedatasamples = rand(diffmultiexp, 500)
+#   @show fakedata = mean(fakedatasamples)
+# end
 
-runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ genfakedata(), 1000; alg = Replica)
+runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ [0.75901, 0.450418, 0.247978], 1000; alg = Replica)
 
 end # module
