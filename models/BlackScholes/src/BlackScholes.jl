@@ -5,6 +5,7 @@ using Omega: invgammarv
 using Omega.Prim: samplemeanᵣ
 using Plots
 using Lens
+using Statistics
 
 export simulate, simrv, diff_σ
 
@@ -45,7 +46,13 @@ diffmulti_σ = rid(diffmulti, σ)
 diffmultiexp =  samplemeanᵣ(diffmulti_σ, 1000)
 diffmultiexpnoise = diffmultiexp + normal(0, 0.01, (nobs,))
 
-runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ [0.5, 0.5, 0.5], 1000; alg = SSMH)
+# Create fake data
+"Generate fake data where `σ` is `σc`"
+function genfakedata(; σc = 3.0)
+  fakedatasamples = rand(replace(diffmultiexp, σ => σc), 100)
+  fakedata = mean(fakedatasamples)
+end
 
+runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ genfakedata(), 1000; alg = Replica)
 
 end # module
