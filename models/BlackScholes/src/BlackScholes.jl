@@ -8,27 +8,44 @@ using Lens
 
 export simulate, simrv, diff_σ
 
-
 # normals = normal(0, sqrt(1/nsteps) * σ)
 
 function simulate(ω, σ; nsteps = 20)
   x = 0.0
-  xs = [x]
+  xs = Any[x]
   for i = 1:nsteps
     x += normal(ω, 0, sqrt(1/nsteps) * σ)
     push!(xs, x)
   end
-  xs
+  xs  
 end
 
-σ = invgammarv(1, 1)
+# σ = invgammarv(1, 1)
+σ = uniform(0.0, 5.0)
 k = 2.0
 simrv = ciid(simulate, σ)
 lastsim = lift(last)(simrv)
-diff = lift(max)(BlackScholes.lastsim - k, 0)
+
+# Single obseration
+diff = lift(max)(lastsim - k, 0)
 diff_σ =  rid(diff, σ)
 diffexp = samplemeanᵣ(diff_σ, 1000)
 
-run() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffexp ==ₛ 0.4477, 1000; alg = SSMH)
+run() = @leval Loop => default_cbs(1000) rand(σ, diffexp ==ₛ 0.4477, 1000; alg = HMCFAST)
+
+# Multiple observations
+function diffmulti_(ω, ks)
+  ls = lastsim(ω)
+  [max(ls - k, 0) for k in ks]
+end
+
+nobs = 3
+diffmulti = ciid(diffmulti_, [1.0, 2.0, 3.0])
+diffmulti_σ = rid(diffmulti, σ)
+diffmultiexp =  samplemeanᵣ(diffmulti_σ, 1000)
+diffmultiexpnoise = diffmultiexp + normal(0, 0.01, (nobs,))
+
+runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ [0.5, 0.5, 0.5], 1000; alg = SSMH)
+
 
 end # module
