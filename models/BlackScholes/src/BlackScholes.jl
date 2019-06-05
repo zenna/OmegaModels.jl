@@ -2,6 +2,7 @@ module BlackScholes
 
 using Omega
 using Omega: invgammarv
+using Omega.Prim: samplemeanᵣ
 using Plots
 using Lens
 
@@ -26,7 +27,7 @@ simrv = ciid(simulate, σ)
 lastsim = lift(last)(simrv)
 diff = lift(max)(BlackScholes.lastsim - k, 0)
 diff_σ =  rid(diff, σ)
-diffexp = samplemean(diff_σ, 1000)
+diffexp = samplemeanᵣ(diff_σ, 1000)
 
 run() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffexp ==ₛ 0.4477, 1000; alg = SSMH)
 
