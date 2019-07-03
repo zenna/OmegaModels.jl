@@ -14,30 +14,11 @@ export bsmmc, simrv, diff_σ
 # Split plot into prior, one observation, many
 
 # Some visualization functions
-const FIGHOME = "/home/zenna/repos/papers/The-Random-Conditional-Distribution-Paper/figures/"
+const FIGHOME = "figures"
 plothist(samples) = histogram(samples)
 plotseries(samples) = plot(samples)
 
 # This model simulates the Black-Scholes differential equations
-
-# # Brownion motion
-# `simulate` below performs brownian motion to simulate a time series
-
-# ```math
-# t_{n+1} + normal(t_n, \sigma)`
-# ```
-
-# """Black Scholes Model (Monte Carlo)
-# """
-# function bsmmc(ω, σ; nsteps = 16, Δt = 1, S = 202.73)  # initial stock price)
-#   Ss = Float64[S]
-#   for i = 1:nsteps
-#     S += normal(ω, 0, sqrt(1/nsteps) * σ)
-#     # ΔS = S * (μ * Δt + σ * s 
-#     # push!(Ss, S)
-#   end
-#   Ss
-# end
 
 """
 
@@ -58,19 +39,6 @@ function bsmmc(ω, σ, T = 0.5, nsteps = 16, S = 202.73, r = 0.025)  # initial s
   series
 end
 
-# We use priors over \sigma, which represents the volatility of the model
-# const σ = uniform(0.0, 5.0)
-
-# Fakebook Stock details
-# const K = 107.0474967956543       # Striking price
-# const volatility = 0.2573358803663978   # Returns
-# const σ = constant(volatility)
-# const T = 0.5                       # Time (in years)
-# const r = 0.025                     # risk-free
-# const tradingdays = 252             # Number of trading days per year
-# const nsteps = Int(T * tradingdays)
-# const S = 101.94999694824219        # Initial stock price
-
 # Amazon data
 strikedate = Date(2019, 9, 3)
 today_ = Date(2019, 7, 3)
@@ -78,22 +46,17 @@ const tradingdays = 252             # Number of trading days per year
 T = (strikedate - today_).value / 365
 nsteps = Int(floor(T * tradingdays))
 AAPLS = 204.41
-data = [(K = 100.0, c = 104.15, σ = .6895, T = T, S = AAPLS),
-        (K = 120.0, c = 76.03, σ = .5586, T = T, S = AAPLS),
-        (K = 190.0, c = 18.35, σ = .2632, T = T, S = AAPLS)]
-        const K = 107.0474967956543       # Striking price
-
-        const volatility = 0.2573358803663978   # Returns
+data = [(K = 100.0, c = 104.15, σ = .6895, T = T),
+        (K = 120.0, c = 76.03, σ = .5586, T = T),
+        (K = 190.0, c = 18.35, σ = .2632, T = T)]
 
 o1 = data[1]
-# const σ = constant(o1.σ)
+# We use priors over \sigma, which represents the volatility of the model
 const σ = uniform(0.0, 5.0)
 const r = 0.025                     # risk-free
-const S = 101.94999694824219        # Initial stock price
-
 
 # Now we create random variables for the time series, and the value of the stock at time T
-const simrv = ciid(bsmmc, σ, o1.T, nsteps, o1.S, r)
+const simrv = ciid(bsmmc, σ, o1.T, nsteps, AAPLS, r)
 const lastsim = lift(last)(simrv)
 
 # Let's draw some prior samples from the model
