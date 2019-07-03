@@ -10,7 +10,6 @@ using Dates
 export bsmmc, simrv, diff_σ
 
 # TODO
-# Do inference with real put data 
 # Be able to use many observations
 # Split plot into prior, one observation, many
 
@@ -125,19 +124,17 @@ function diffmulti_(ω, ks)
   [max(ls - k, 0) for k in ks]
 end
 
-const nobs = 3
-const diffmulti = ciid(diffmulti_, [1.0, 2.0, 3.0])
+const nobs = length(data)
+const ks = [o.K for o in data] 
+const cs = [o.c for o in data]
+const diffmulti = ciid(diffmulti_, ks)
 const diffmulti_σ = rid(diffmulti, σ)
 const diffmultiexp =  samplemeanᵣ(diffmulti_σ, 1000)
 const diffmultiexpnoise = diffmultiexp + normal(0, 0.01, (nobs,))
 
-# Create fake data
-"Generate fake data where `σ` is `σc`"
-# function genfakedata(; σc = 3.0)
-#   fakedatasamples = rand(diffmultiexp, 500)
-#   @show fakedata = mean(fakedatasamples)
-# end
+runmulti(; n = 1000, alg = Replica, kwargs...) =
+  @leval SSMHLoop => default_cbs(n) rand(σ, diffmultiexpnoise ==ₛ cs, n; alg = alg, kwargs...)
 
-runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ [0.75901, 0.450418, 0.247978], 1000; alg = Replica)
+# runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ cs, 1000; alg = Replica)
 
 end # module
