@@ -30,13 +30,15 @@ nsteps: number of time steps
 """
 function bsmmc(ω, σ, T = 0.5, nsteps = 16, S = 202.73, r = 0.025)  # initial stock price)
   Δt = T/nsteps
-  series = Any[S]
+  # series = [S]
   for i = 1:nsteps
-    z = normal(ω, 0, 1)
+    # z = normal(ω, 0, 1)
+    z = randn(ω)
     S = S * exp((r - 0.5σ^2) * Δt + (σ * sqrt(Δt) * z))
-    push!(series, S)
+    # push!(series, S)
   end
-  series
+  S
+  # series
 end
 
 # Amazon data
@@ -57,28 +59,29 @@ data = [(K = 100.0, c = 104.15, σ = .6895, T = T)]
 o1 = data[1]  
 # We use priors over \sigma, which represents the volatility of the model
 const σ = uniform(0.0, 1.0)
-const r = 0.025                     # risk-free
+const r = 0.02                     # risk-free
 
 # Now we create random variables for the time series, and the value of the stock at time T
 const simrv = ciid(bsmmc, σ, o1.T, nsteps, AAPLS, r)
-const lastsim = lift(last)(simrv)
+const lastsim =  lift(last)(simrv)
 
 # Let's draw some prior samples from the model
 sampleprior() = rand(simrv, 10)
-# nb fig =  plot(samplesprior(); xlabel = "time", ylabel = "S", legend = false)
+#   nb fig =  plot(samplesprior(); xlabel = "time", ylabel = "S", legend = false)
 # savefig(fig, joinpath(FIGHOME, "bsseries1.pdf"))
 
 # Single obseration
 const diff = lift(max)(lastsim - o1.K, 0)
 const diff_σ =  rid(diff, σ)  
-const diffexp = samplemeanᵣ(diff_σ, 1000)
+const diffexp = samplemeanᵣ(diff_σ, 1000000)
 const C_discount = diffexp * exp(-r*o1.T)
 
+const c1 = C_discount ==ₛ o1.c 
 run(; n = 1000, alg = HMCFAST, kwargs...) =
-  @leval HMCFASTLoop => default_cbs(n) rand(σ, diffexp ==ₛ o1.c, n; alg = alg, kwargs...)
+  @leval HMCFASTLoop => default_cbs(n) rand(σ, C_discount ==ₛ o1.c, n; alg = alg, kwargs...)
 
 runsilent(; n = 1000, alg = SSMH, kwargs...) =
-  rand(σ, diffexp ==ₛ o1.c, n; alg = alg, kwargs...)
+  rand(σ, diffexp ==ₛ o1.c, n; alg = alg, kwargs...)  
 
 
 "Histogram of prior vs posterior samples over σ"

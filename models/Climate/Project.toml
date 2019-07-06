@@ -1,0 +1,7 @@
+name = "Climate"
+uuid = "c912dbc2-9edb-11e9-0b01-694dc616d7b8"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
