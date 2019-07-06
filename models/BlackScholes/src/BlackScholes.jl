@@ -21,14 +21,14 @@ plotseries(samples) = plot(samples)
 # This model simulates the Black-Scholes differential equations
 
 """
-
+Black-Scholes monte-carlo stochastic differential equation
 T: time to maturity (in years)
-r = riskfree rate of interest
+r: riskfree rate of interest
 σ: volatility
 nsteps: number of time steps
-
+S: initial stock price 
 """
-function bsmmc(ω, σ, T = 0.5, nsteps = 16, S = 202.73, r = 0.025)  # initial stock price)
+function bsmmc(ω, σ, T = 0.5, nsteps = 16, S = 202.73, r = 0.025)
   Δt = T/nsteps
   Δ = 0.0
   for i = 1:nsteps
@@ -101,14 +101,21 @@ const ks = [o.K for o in selected]
 const cs = [o.c * exp(r*o.T) for o in selected]
 const diffmulti = ciid(diffmulti_, ks)
 const diffmulti_σ = rid(diffmulti, σ)
-const diffmultiexp =  samplemeanᵣ(diffmulti_σ, 1000)
+const diffmultiexp =  samplemeanᵣ(diffmulti_σ, 2)
 # const diffmultiexp = lift(disp)(diffmultiexp_)
-const diffmultiexpnoise = diffmultiexp + normal(0.0, 0.01, (nobs,))
+const norms = ciid(ω -> [normal(ω, 0.0, 1.0) for i = 1:nobs])
+const diffmultiexpnoise = diffmultiexp + norms
+# normal(0.0, 0.01, (nobs,))
 
+function condition_(ω)
+  diffmultiexpnoise(ω) ==ₛ cs
+end
+
+condition2 = ciid(condition_)
 
 # const condition = (samplemeanᵣ(diffmulti_σ, 10000) + normal(0, 0.01, (nobs,)))  ==ₛ cs
 runmulti(; n = 1000, alg = SSMH, kwargs...) =
-  @leval SSMHLoop => default_cbs(n) rand(σ, diffmultiexpnoise ==ₛ cs, n; alg = alg, kwargs...)
+  @leval SSMHLoop => default_cbs(n) rand(σ, condition2, n; alg = alg, kwargs...)
 
 runmultisilent(; n = 1000, alg = Replica, kwargs...) =
   rand(σ, diffmultiexpnoise .==ₛ cs, n; alg = alg, kwargs...)
