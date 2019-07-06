@@ -93,24 +93,25 @@ function diffmulti_(ω, ks)
   [max(ls - k, 0) for k in ks]
 end
 
-disp(x; msg = "") = (println(msg, "value : ", x); x)
+# disp(x; msg = "") = (println(msg, "value : ", x); x)
 
-const nobs = length(data)
-const ks = [o.K for o in data] 
-const cs = [o.c * exp(r*o.T) for o in data]
+const selected = [data[1], data[end-1]]
+const nobs = length(selected)
+const ks = [o.K for o in selected] 
+const cs = [o.c * exp(r*o.T) for o in selected]
 const diffmulti = ciid(diffmulti_, ks)
 const diffmulti_σ = rid(diffmulti, σ)
-const diffmultiexp_ =  samplemeanᵣ(diffmulti_σ, 100000000)
-const diffmultiexp = lift(disp)(diffmultiexp_)
-const diffmultiexpnoise = diffmultiexp + normal(0, 0.01, (nobs,))
+const diffmultiexp =  samplemeanᵣ(diffmulti_σ, 1000)
+# const diffmultiexp = lift(disp)(diffmultiexp_)
+const diffmultiexpnoise = diffmultiexp + normal(0.0, 0.01, (nobs,))
 
 
-const condition = (samplemeanᵣ(diffmulti_σ, 10000) + normal(0, 0.01, (nobs,)))  ==ₛ cs
+# const condition = (samplemeanᵣ(diffmulti_σ, 10000) + normal(0, 0.01, (nobs,)))  ==ₛ cs
 runmulti(; n = 1000, alg = SSMH, kwargs...) =
   @leval SSMHLoop => default_cbs(n) rand(σ, diffmultiexpnoise ==ₛ cs, n; alg = alg, kwargs...)
 
 runmultisilent(; n = 1000, alg = Replica, kwargs...) =
-  rand(σ, diffmultiexpnoise ==ₛ cs, n; alg = alg, kwargs...)
+  rand(σ, diffmultiexpnoise .==ₛ cs, n; alg = alg, kwargs...)
 
 # runmulti() = @leval SSMHLoop => default_cbs(1000) rand(σ, diffmultiexpnoise ==ₛ cs, 1000; alg = Replica)
 
