@@ -34,7 +34,7 @@ function bsmmc(ω, σ, T = 0.5, nsteps = 16, S = 202.73, r = 0.025)  # initial s
   for i = 1:nsteps
     z = randn(ω)
     # S = S * exp((r - 0.5σ^2) * Δt + (σ * sqrt(Δt) * z))
-    Δ += (σ * sqrt(Δt) * z)
+    Δ += (r - 0.5σ^2) * Δt + (σ * sqrt(Δt) * z)
   end
   S * exp(Δ)
 end
