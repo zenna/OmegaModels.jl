@@ -17,13 +17,16 @@ end
 
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
 
+"Prepare img as input into array"
+pren_net(x::Img) = Float32.(expanddims(cube(x.img)))
+
 "DIstance between two images is feature representation"
 function Omega.d(x::Img, y::Img)::Real
-  xfeatures = squeezenet2(expanddims(cube(x.img)))
-  yfeatures = squeezenet2(expanddims(cube(y.img)))
-  eucl(xfeatures[1], yfeatures[1])
-  # ds = map(eucl, xfeatures, yfeatures)
+  xfeatures = squeezenet(pren_net(x))
+  yfeatures = squeezenet(pren_net(y))
+  # eucl(xfeatures[1], yfeatures[1])
+  ds = map(eucl, xfeatures, yfeatures)
   # lens(:scores, ds)
-  # mean(ds)
+  Float64(mean(ds))
 end
 expanddims(x) = reshape(x, size(x)..., 1)
