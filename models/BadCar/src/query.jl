@@ -17,7 +17,7 @@ function n_lane_changes(lanetags)
   for lane in lanes
     if lane != curr_lane
       nchanges += 1
-      lane = curr_lane
+      curr_lane = lane
     end
   end
   nchanges
@@ -37,7 +37,11 @@ lane_tag = ciid(lane_tags_, 1)
 # Sample from the distribution over modes conditioned o
 # Observed car movement
 function query1()
-  rand(models, n_lane_change ==ₛ 10.0, 100; alg = SSMH)
+  function condition(ω)
+    @show a = n_lane_change(ω)
+    @show a ==ₛ 10.0
+  end
+  rand((dynamic_sim), ~condition, 1000; alg = SSMH)
 end
 
 function query2()
