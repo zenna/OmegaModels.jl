@@ -50,14 +50,16 @@ dynamic_scene =~ gen_scene
 
 function models_(ω, timestep = 0.1)
   # models = Dict{Int, LaneFollowingDriver}()
-  models = Dict{Int, Tim2DDriver}()
+  models = Dict{Int, Tim2DDriver}() 
   for i = 1:ncars(ω)
     v_des = uniform(ω, 1.0, 15.0)
+    politeness = uniform(ω, 0.001, 0.999)
+    # politeness = 0.2
     # models[i] = IntelligentDriverModel(v_des = 12.0)
     # models[i] = Tim2DDriver(timestep)
     models[i] = Tim2DDriver(timestep; mlon = IntelligentDriverModel(v_des = v_des),
-                                      mlane = MOBIL(0.2; politeness = 0.1))
-    # # models[1] = StaticLaneFollowingDriver(0.0) # always produce zero acceleration
+                                      mlane = MOBIL(timestep; politeness = politeness))
+      # # models[1] = StaticLaneFollowingDriver(0.0) # always produce zero acceleration
     # models[1] = IntelligentDriverModel(v_des = 12.0) # default IDM with a desired speed of 12 m/s
     # models[2] = PrincetonDriver(v_des = 10.0) # default Princeton driver with a desired speed of 10m/s
   end
@@ -79,7 +81,7 @@ end
 dynamic_sim = ~ dynamic_sim_
 
 "Animate `rec` the model"
-function animate(rec, roadway; fps = 60, duration = 5)
+function animate(rec, roadway; fps = 60, duration = 10)
   cam = FitToContentCamera()
 
   scene = rec.frames[1]
@@ -95,13 +97,14 @@ function animate(rec, roadway; fps = 60, duration = 5)
     frame_index = to_index(t)
     scene = rec[frame_index-nframes(rec)]
 
-    # Add an overlay of id above the car
+    # Add an overlay of id above the car  
     overlays = [TextOverlay(text = ["$(veh.id)"],
             incameraframe = true,
             pos = veh.state.posG  + VecSE2(0.0, 1.0, 1.0)) for veh in scene]
 
     render(scene,
-           roadway, 
+           roadway,
+           overlays,
            cam = cam,
            car_colors = car_colors)
   end
