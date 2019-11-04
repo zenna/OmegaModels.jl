@@ -7,18 +7,29 @@ function plot_prior_samples(ωs; nsamples = 10, kwargs...)
        ylabel = "CO2 (ppm)",
        legend = false,
        color = :red,
+       size = (800, 600),
+       tickfontsize = 40,
+       legendfontsize = 40,
+       titlefontsize = 46,
+       guidefontsize = 44,
        kwargs...)
 end
 
 function plot_posterior_samples(ωs; nsamples = 10, kwargs...)
   ωs_sub = rand(ωs, nsamples)
   sims = [co2_sim(ω) for ω in ωs_sub]
+  # @assert false
   plt = plot(1959:2035, sims;
-       title = "Prior Samples",
+       title = "Posterior Samples",
        xlabel = "Year",
        ylabel = "CO2 (ppm)",
        legend = false,
        color = :red,
+       size = (800, 600),
+       tickfontsize = 40,
+       legendfontsize = 40,
+       titlefontsize = 46,
+       guidefontsize = 44,
        kwargs...)
   # Add co2 data
   cd = asvec(co2_data, 1959:2018)

@@ -16,7 +16,10 @@ const Θ_cond = cond(Θ, datacond)
 # Posterior over parameters given there will be a 25 percent increase 
 const idx_2018 = 2018 - 1959 + 1
 const increase = co2_sim[end] / co2_sim[idx_2018]
-const Θ_cond_2 = cond(Θ, datacond & increase ==ₛ 1.25)
+const Θ_cond_2 = cond(Θ, datacond & (increase ==ₛ 1.25))
+
+# Posterior given that it will be at 475 in 2013
+const Θ_cond_3 = cond(Θ, datacond & (co2_sim[end] ==ₛ 475.0))
 
 # Expected increase will be 25 percent
-const Θ_cond_rcd = cond(Θ, datacond & meanᵣ(rid(increase, Θ)) ==ₛ 1.25)
+const Θ_cond_rcd = cond(Θ, datacond & (meanᵣ(rid(increase, Θ)) ==ₛ 1.25))
