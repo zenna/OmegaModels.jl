@@ -27,10 +27,9 @@ end
 function exp_decision(model; nsamples = 1000)
   function(datum)
     samples = [rand(model)(datum) for i = 1:nsamples]
-    mean(samples) > 0.5
+    mean(samples) > 0.5  # True if average is greater than 0.5
   end
 end
 
 # Test
-
 const rand_model = ~ ω -> ((args...) -> bernoulli(ω, 0.5, Bool))

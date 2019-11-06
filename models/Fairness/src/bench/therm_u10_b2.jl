@@ -164,10 +164,12 @@ function post(Pr)
     thresh = .9
     es = ["sanity1", "sanity2", "sanity3" , "body_0", "body_1", "body_2", "body_3", "body_4", "body_5", "body_6", "body_7", "body_8", "body_9"]
     for e in es
-        if Pr({e : true}) <= thresh
+        if prob(e) <= thresh
             return false
         end
     end
     return true
+
+end
 
 end
