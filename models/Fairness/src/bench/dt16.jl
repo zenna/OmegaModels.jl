@@ -22,29 +22,43 @@ function pre(ω)
 end
 
 const prerv = ~pre
+const Holes = (~ ω -> Hole(ω, 5095.5; σ = 200.0),
+               ~ ω -> Hole(ω, 4718.5; σ = 200.0),
+               ~ ω -> Hole(ω, 5095.5; σ = 200.0),
+               ~ ω -> Hole(ω,   8296; σ = 200.0),
+               ~ ω -> Hole(ω, 4668.5; σ = 200.0))
+
 
 function D(ω, sex, capital_gain, relationship)
     event("minority", sex < 1)
     if relationship < 1
-        if capital_gain < Hole(ω, 5095.5)
+        # if capital_gain < Hole(ω, 5095.5; σ = 200.0)
+        # if capital_gain < Hole(ω, 0.0; σ = 0.0)
+        if capital_gain < Holes[1](ω)
             t = 1
         else
             t = 0
         end
     elseif relationship < 2
-        if capital_gain < Hole(ω, 4718.5)
+        # if capital_gain < Hole(ω, 4718.5; σ = 200.0)
+        # if capital_gain < Hole(ω, 2632.1803124654944; σ = 0.0)
+        if capital_gain < Holes[2](ω)
             t = 1
         else
             t = 0
         end
     elseif relationship < 3
-        if capital_gain < Hole(ω, 5095.5)
+        # if capital_gain < Hole(ω, 5095.5; σ = 200.0)
+        # if capital_gain < Hole(ω, 1168.5702749404127; σ = 0.0)
+        if capital_gain < Holes[3](ω)
             t = 1
         else
             t = 0
         end
     elseif relationship < 4
-        if capital_gain < Hole(ω, 8296)
+        # if capital_gain < Hole(ω, 8296); σ = 200.0
+        # if capital_gain < Hole(ω, 20229.055378016285; σ = 0.0)
+        if capital_gain < Holes[4](ω)
             t = 1
         else
             t = 0
@@ -52,7 +66,9 @@ function D(ω, sex, capital_gain, relationship)
     elseif relationship < 5
         t = 1
     else
-        if capital_gain < Hole(ω, 4668.5)
+        # if capital_gain < Hole(ω, 4668.5; σ = 200.0)
+        # if capital_gain < Hole(ω, 4108.646587752379; σ = 0.0)
+        if capital_gain < Holes[5](ω)
             t = 1
         else
             t = 0
@@ -71,13 +87,23 @@ end
 
 const classifier = ~ classifier_
 
-function post(Pr)
-    num = prob("hired" & "minority") / prob("minority")
-    den = prob("hired" & !"minority") / prob(!"minority")
+# function post(Pr, hired, minority)
+#     num = prob(hired & minority) / prob(minority)
+#     den = prob(hired & !minority) / prob(!minority)
+#     ratio = num / den
+#     ratio > 0.85
+# end
+
+function post(hired, minority, theta)
+    num = prob(rid(hired & minority, theta)) / prob(minority)
+    den = prob(rid(hired & !minority, theta)) / prob(!minority)
     ratio = num / den
-    return ratio > 0.85
+    ratio > 0.85
 end
 
-# Fairness.evaluate(d, Fairness.exp_decision(Fairness.DT16.classifier))
+# post(hired, minority, Holes)
+# 
+# @show Fairnes
+# @show Fairness.evaluate(Fairness.load_data(), Fairness.exp_decision(Fairness.DT16.classifier; nsamples = 1))
 
 end

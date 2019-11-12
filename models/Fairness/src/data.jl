@@ -5,7 +5,10 @@ colnames = ["age", "workclass", "fnlwgt", "education", "education-num", "marital
 categories = Dict(
   :sex => ["Female", "Male"],
   :relationship => ["Wife", "Own-child", "Husband", "Not-in-family", "Other-relative", "Unmarried"], 
+  :label => [">50K", "<=50K"]
 )
+
+rmmismsing(df) = df[DataFrames.completecases(df), :]
 
 "Turn categories into numbers"
 function clean_data(df)
@@ -19,7 +22,7 @@ function clean_data(df)
       println("Could not find $name")
     end
   end
-  df
+  rmmismsing(df)
 end
 
 "Laod data from file"

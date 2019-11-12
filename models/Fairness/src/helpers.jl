@@ -8,7 +8,7 @@ end
 
 
 "Hole without constraints"
-Hole(ω, x) = normal(ω, x, 1)
+Hole(ω, x; σ = 1) = normal(ω, x, σ)
 
 "Density is a step function (piecewise constant)"
 function steps(ω, bars)
