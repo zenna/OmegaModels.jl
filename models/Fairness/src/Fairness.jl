@@ -2,9 +2,14 @@ module Fairness
 
 using Lens
 using Omega
+using Callbacks
 using ProgressMeter
 using DataFrames
+using BSON
 export gaussian, Hole, event, steps
+
+
+scope!("Fairness")
 
 include("helpers.jl")
 include("evaluation.jl")

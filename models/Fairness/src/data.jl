@@ -15,9 +15,9 @@ function clean_data(df)
   # @assert false
   for name in names(df)
     if name in keys(categories)
-      df[name]
+      df[!, name]
       ff(x) = ismissing(x) ? missing : findfirst((==)(strip(x)), categories[name])
-      df[name] = map(ff, df[name])
+      df[!, name] = map(ff, df[!, name])
     else
       println("Could not find $name")
     end
