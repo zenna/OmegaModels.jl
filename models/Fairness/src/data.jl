@@ -1,5 +1,5 @@
 using CSV
-datadir = joinpath(dirname(@__FILE__), "..", "data")
+  datadir = joinpath(dirname(pathof(Fairness)), "..", "data")
 colnames = ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status", "occupation", "relationship", "race", "sex", "capital-gain", "capital-loss", "hours-per-week", "country", "label"]
 
 categories = Dict(
@@ -30,3 +30,5 @@ function load_data(path = joinpath(datadir, "adult.data"))
   adult_data = CSV.read(path, header = colnames)
   clean_data(adult_data)
 end
+
+load_test_data() = load_data(joinpath(datadir, "adult.test"))

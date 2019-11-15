@@ -22,19 +22,32 @@ function pre(ω)
 end
 
 const prerv = ~pre
-const Holes = (~ ω -> Hole(ω, 5095.5; σ = 200.0),
-               ~ ω -> Hole(ω, 4718.5; σ = 200.0),
-               ~ ω -> Hole(ω, 5095.5; σ = 200.0),
-               ~ ω -> Hole(ω,   8296; σ = 200.0),
-               ~ ω -> Hole(ω, 4668.5; σ = 200.0))
+const Holes1 = (~ ω -> Hole(ω, 5095.5; σ = 0.0001),
+               ~ ω -> Hole(ω, 4718.5; σ = 0.0001),
+               ~ ω -> Hole(ω, 5095.5; σ = 0.0001),
+               ~ ω -> Hole(ω, 8296.0; σ = 0.0001),
+               ~ ω -> Hole(ω, 4668.5; σ = 0.0001))
 
+const Holes2 = (~ ω -> Hole(ω, 0.0; σ = 0.001),
+               ~ ω -> Hole(ω, 2632.1803124654944; σ = 0.001),
+               ~ ω -> Hole(ω, 1168.5702749404127; σ = 0.001),
+               ~ ω -> Hole(ω, 20229.055378016285; σ = 0.001),
+               ~ ω -> Hole(ω, 4108.646587752379; σ = 0.001))
 
-function D(ω, sex, capital_gain, relationship)
+# const Holes = (~ ω -> Hole(ω, rand(); σ = 0.001),
+#                 ~ ω -> Hole(ω, rand(); σ = 0.001),
+#                 ~ ω -> Hole(ω, rand(); σ = 0.001),
+#                 ~ ω -> Hole(ω, rand(); σ = 0.001),
+#                 ~ ω -> Hole(ω, rand(); σ = 0.001))
+
+               
+function D(Holes, sex, capital_gain, relationship)
     event("minority", sex < 1)
+    # @show relationship
     if relationship < 1
         # if capital_gain < Hole(ω, 5095.5; σ = 200.0)
         # if capital_gain < Hole(ω, 0.0; σ = 0.0)
-        if capital_gain < Holes[1](ω)
+        if capital_gain < Holes[1]
             t = 1
         else
             t = 0
@@ -42,15 +55,17 @@ function D(ω, sex, capital_gain, relationship)
     elseif relationship < 2
         # if capital_gain < Hole(ω, 4718.5; σ = 200.0)
         # if capital_gain < Hole(ω, 2632.1803124654944; σ = 0.0)
-        if capital_gain < Holes[2](ω)
+        if capital_gain < Holes[2]
+            # @show "failed"
             t = 1
         else
+            # @show "won"
             t = 0
         end
     elseif relationship < 3
         # if capital_gain < Hole(ω, 5095.5; σ = 200.0)
         # if capital_gain < Hole(ω, 1168.5702749404127; σ = 0.0)
-        if capital_gain < Holes[3](ω)
+        if capital_gain < Holes[3]
             t = 1
         else
             t = 0
@@ -58,7 +73,7 @@ function D(ω, sex, capital_gain, relationship)
     elseif relationship < 4
         # if capital_gain < Hole(ω, 8296); σ = 200.0
         # if capital_gain < Hole(ω, 20229.055378016285; σ = 0.0)
-        if capital_gain < Holes[4](ω)
+        if capital_gain < Holes[4]
             t = 1
         else
             t = 0
@@ -68,7 +83,7 @@ function D(ω, sex, capital_gain, relationship)
     else
         # if capital_gain < Hole(ω, 4668.5; σ = 200.0)
         # if capital_gain < Hole(ω, 4108.646587752379; σ = 0.0)
-        if capital_gain < Holes[5](ω)
+        if capital_gain < Holes[5]
             t = 1
         else
             t = 0
@@ -76,12 +91,16 @@ function D(ω, sex, capital_gain, relationship)
     end
     event("hired", t < 0.5)
     ret = 1 - t
-    return ret
+    t
+    # return ret
 end
 
-function classifier_(ω)
-    function (data)
-        D(ω, data.sex, data[Symbol("capital-gain")], data.relationship)
+function classifier_(ω; Holes = Holes1)
+    Holes_ = map(h->h(ω), Holes)
+    let w_ = ω
+        function (data)
+            D(Holes_, data.sex, data[Symbol("capital-gain")], data.relationship)
+        end
     end
 end
 
@@ -98,6 +117,10 @@ function post(hired, minority, theta)
     num = prob(rid(hired & minority, theta)) / prob(minority)
     den = prob(rid(hired & !minority, theta)) / prob(!minority)
     ratio = num / den
+    #                ~ ω -> Hole(ω, 2632.1803124654944; σ = 0.001),
+    #                ~ ω -> Hole(ω, 1168.5702749404127; σ = 0.001),
+    #                ~ ω -> Hole(ω, 20229.055378016285; σ = 0.001),
+    #                ~ ω -> Hole(ω, 4108.646587752379;
     ratio > 0.85
 end
 
