@@ -3,6 +3,8 @@ module Fairness
 using Lens
 using Omega
 using Callbacks
+using SuParameters
+using RunTools
 using ProgressMeter
 using DataFrames
 using BSON
