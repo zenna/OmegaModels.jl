@@ -17,7 +17,8 @@ import GeometryTypes: Point, Vec3
 using FileIO
 
 include("img.jl")
-include("net.jl")
+include("nets/SqueezeNet/SqueezeNet.jl")
+using .SqueezeNet
 include("prior.jl")
 include("notebook.jl")
 

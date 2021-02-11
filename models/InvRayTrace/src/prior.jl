@@ -23,11 +23,11 @@ end
 "Do any objects in the scene intersect with any other"
 intersect(sc::Scene) = any(pairwisef(intersects, sc))
 nointersect(sc::Scene) = allₛ(pairwisef(nointersect, sc))
-lift(:nointersect, 1)
+# lift(:nointersect, 1)
 
 "Are all objects isequidistant?"
 isequidistant(sc::Scene) = same(pairwisef(d, sc))
-lift(:isequidistant, 1)
+# lift(:isequidistant, 1)
 
 "Convert Scene to DataFrame"
 function scenetodf(scene::RayTrace.ListScene)

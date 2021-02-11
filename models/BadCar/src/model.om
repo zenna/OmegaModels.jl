@@ -1,0 +1,23 @@
+~ Prior Distribution over cars
+ncars : ~ poisson 4.0
+
+~ Prior distribution over vehicles (target)_speed, velocity...)
+vehicles :
+  for i = 1..ncars
+    target_velocity : ~ uniform 1.0 15.0
+    politeness : ~ uniform 0.0 1.0
+    start_pos : ~ uniform 0.0 5.0
+    start_lane : ~ uniform (1, 2)
+    (target_velocity, politeness, start_pos, start_lane)
+  
+- Prior over simulations
+sim : runsim vehicles
+
+- Number of lane changes driver 1 makes
+driver_1_lane_changes : nchanges(sim, 1)
+
+- Take posterior samples
+rand sim | nchanges(sim, 1) = 10
+
+- Take posterior samples over vehicles
+rand vehicles | nchanges(sim, 1) = 10

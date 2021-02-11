@@ -1,0 +1,16 @@
+name = "Fairness"
+uuid = "e4bb319a-6009-453b-a20a-8daec2626a1a"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Lens = "496038af-b016-571c-b31e-8262695ac102"
+Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
+ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
+RunTools = "daa74b60-952f-11e8-3ac8-774e2ccb6bec"
+SuParameters = "dd363196-7feb-11e9-1f4f-d309144a6292"
+TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"

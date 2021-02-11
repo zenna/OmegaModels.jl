@@ -1,0 +1,37 @@
+-- Volatility Parameter
+σ : ~ unif
+
+-- Simulate from 1959 2035
+nsteps : 2035 - 1959
+
+-- CO2 time series
+co2 : ω ->
+  series : (s,)
+  step : i xs ->
+    if i < nsteps
+      xs
+    else
+      z : ~ normal 0 1
+      s : last xs
+      sn : s * exp(r - 0.5 * σ^2) + σ * z
+      step (i + 1) (append xs sn)
+  seq 1 series
+
+-- Temperature time series
+temps : map t -> (s + α * sin(t*k)) co2
+
+-- Data
+co2_data : (0.94, 0.54, ..., 2.86)
+temo_data : (0.03, -0.02, ..., 0.85)
+
+-- Posterior given data
+params_cond = params | co2sim == co2_data
+
+-- Temperature rise
+ΔS = temps[2035] - temps[2016]
+
+-- Construct the distributional inference posterior
+params_cond | E(ΔS || params) in (0.4, 0.7) and co2sim == co2_data
+
+-- Sample from it
+rand params_cond 
