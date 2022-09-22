@@ -9,7 +9,7 @@ using LinearAlgebra: norm
 
 ## MeshCat
 ## =======
-function visualize(sphere::RayTrace.MaterialGeom, name, vis)
+function visualize(sphere::RayTrace.FancySphere, name, vis)
   s = HyperSphere(Point3f0(sphere.center), Float32(sphere.r))
   material = MeshPhongMaterial(color=@show RGBA([sphere.surface_color; 1.0]...))
   setobject!(vis[name], s, material)

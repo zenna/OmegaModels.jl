@@ -1,4 +1,3 @@
-
 function same(xs)
   a = [x1 ==ₛ x2 for x1 in xs, x2 in xs if x1 !== x2]
   all(a)
@@ -8,13 +7,13 @@ norma(x) = sqrt(sum(x .* x))
 pairwisef(f, sc::Scene) = [f(obj1, obj2) for obj1 in sc.geoms[1:end-1], obj2 in sc.geoms[1:end-1] if obj1 !== obj2]
 
 "Euclidean distance between all objects"
-d(s1::MaterialGeom, s2::MaterialGeom) = norma(s1.center - s2.center)
+d(s1::Sphere, s2::Sphere) = norma(s1.center - s2.center)
 
 "Distance between surfance color"
-cold(s1::MaterialGeom, s2::MaterialGeom) = norma(s1.surface_color - s2.surface_color)
+cold(s1::Sphere, s2::Sphere) = norma(s1.surface_color - s2.surface_color)
 
-intersect(s1::MaterialGeom, s2::MaterialGeom) = d(s1, s2) <ₛ (s1.r + s2.r)
-function nointersect(s1::MaterialGeom, s2::MaterialGeom)
+intersect(s1::Sphere, s2::Sphere) = d(s1, s2) <ₛ (s1.r + s2.r)
+function nointersect(s1::Sphere, s2::Sphere)
   d1 = d(s1, s2)
   d2 = (s1.r + s2.r)
   a = d1 >ₛ d2
