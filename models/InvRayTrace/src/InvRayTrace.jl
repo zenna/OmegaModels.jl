@@ -3,26 +3,25 @@ module InvRayTrace
 
 using Omega
 using RayTrace
-using JLD2
-using FileIO
 using Flux
 import Statistics: mean
 using Random
 using Callbacks
+using Images
+using Distributions
 
-import RayTrace: ListScene, rgbimg, rgb, msphere, Vec3, Sphere, Scene, render, MaterialGeom
+
+import RayTrace: ListScene, rgbimg, Sphere, Scene, render, FancySphere
 import GeometryTypes: Point, Vec3
-
-# import GeometryTypes: Point, Vec3
-using FileIO
 
 include("img.jl")
 include("nets/SqueezeNet/SqueezeNet.jl")
-using .SqueezeNet
+using .SqueezeNet_
 include("prior.jl")
-include("notebook.jl")
+include("objects.jl")
+# include("posterior.jl")
 
-export img, scene, img_obs
+export img, scene, img_obs, img_real
 
 
 # Optional
